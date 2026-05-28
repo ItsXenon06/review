@@ -6,13 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-// ✅ Đúng
-public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
+public interface VehicleRepository extends JpaRepository<Vehicle, Integer> {
+
     List<Vehicle> findByStatus(VehicleStatus status);
 
     List<Vehicle> findByCategoryCategoryId(Integer categoryId);
@@ -23,27 +24,27 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
 
     Optional<Vehicle> findByVin(String vin);
 
-    // Đếm số xe theo trạng thái (dùng cho thống kê bảng điều khiển)
     long countByStatus(VehicleStatus status);
 
-    // Lọc xe theo từ khóa, hãng, mô hình và trạng thái (dùng cho tìm kiếm)
+    long countByStatusNot(VehicleStatus status);
+
     @Query("""
         SELECT v FROM Vehicle v
         WHERE (:tuKhoa IS NULL OR
                 LOWER(v.licensePlate) LIKE LOWER(CONCAT('%', :tuKhoa, '%'))
-             OR LOWER(v.brand)        LIKE LOWER(CONCAT('%', :tuKhoa, '%'))
+             OR LOWER(v.make)         LIKE LOWER(CONCAT('%', :tuKhoa, '%'))
              OR LOWER(v.model)        LIKE LOWER(CONCAT('%', :tuKhoa, '%')))
-          AND (:hangXe    IS NULL OR v.brand  = :hangXe)
-          AND (:moHinh    IS NULL OR v.model  = :moHinh)
-          AND (:trangThai IS NULL OR CAST(v.status AS string) = :trangThai)
+          AND (:hangXe    IS NULL OR v.make  = :hangXe)
+          AND (:moHinh    IS NULL OR v.model = :moHinh)
+          AND (:trangThai IS NULL OR v.status = :trangThaiEnum)
     """)
     List<Vehicle> filterVehicles(
-            @Param("tuKhoa")    String tuKhoa,
-            @Param("hangXe")    String hangXe,
-            @Param("moHinh")    String moHinh,
-            @Param("trangThai") String trangThai);
+            @Param("tuKhoa")       String tuKhoa,
+            @Param("hangXe")       String hangXe,
+            @Param("moHinh")       String moHinh,
+            @Param("trangThai")    String trangThai,
+            @Param("trangThaiEnum") VehicleStatus trangThaiEnum);
 
-    // Xe không trong bất kỳ đặt chỗ nào đang hoạt động trong khoảng thời gian
     @Query("""
         SELECT v FROM Vehicle v
         WHERE v.status = 'Available'
@@ -58,9 +59,6 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
             @Param("ngayNhan") LocalDate ngayNhan,
             @Param("ngayTra")  LocalDate ngayTra);
 
-    // Đếm số xe đang được thuê (dùng tính giá theo nhu cầu)
     @Query("SELECT COUNT(v) FROM Vehicle v WHERE v.status = 'Rented'")
     long countRented();
-
-    long countByStatusNot(VehicleStatus status);
 }

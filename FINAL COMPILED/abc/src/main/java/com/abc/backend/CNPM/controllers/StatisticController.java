@@ -5,6 +5,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+
+@Autowired
+private VehicleRepository vehicleRepository;
 @Controller
 public class StatisticController {
 
@@ -16,6 +19,14 @@ public class StatisticController {
 
     @GetMapping("/statistic")
     public String viewDashboard(Model model) {
+        long totalVehicles    = vehicleRepository.count();
+long rentedVehicles   = vehicleRepository.countByStatus(VehicleStatus.Rented);
+String utilizationRate = totalVehicles > 0
+    ? String.format("%.1f", (rentedVehicles * 100.0 / totalVehicles))
+    : "0";
+
+model.addAttribute("totalVehicles",   totalVehicles);
+model.addAttribute("utilizationRate", utilizationRate);
         model.addAttribute("totalRevenue", statisticService.getTotalRevenue());
         model.addAttribute("totalBookings", statisticService.getTotalBookings());
         model.addAttribute("vehicleStats", statisticService.getVehicleStatusStats());

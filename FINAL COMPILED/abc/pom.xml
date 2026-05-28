@@ -22,6 +22,19 @@
 	</properties>
 
 	<dependencies>
+	<!-- Thymeleaf + Spring Security integration (needed for #authentication in templates) -->
+<dependency>
+    <groupId>org.thymeleaf.extras</groupId>
+    <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+</dependency>
+
+<!-- Spring Security Test -->
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-test</artifactId>
+    <scope>test</scope>
+</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>

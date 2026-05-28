@@ -1,66 +1,39 @@
 package com.abc.backend.CNPM.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Notification") // Tên bảng trong SQL
+@Table(name = "Notification")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "NotificationID") // Map đúng tên cột trong SQL
+    @Column(name = "NotificationID")
     private Long notificationID;
 
     @Column(name = "ContractID")
     private Long contractID;
 
-    @Column(name = "Title")
+    @Column(name = "Title", length = 200)
     private String title;
 
-    @Column(name = "Content")
+    @Column(name = "Content", columnDefinition = "NVARCHAR(MAX)")
     private String content;
 
     @Column(name = "SentAt")
     private LocalDateTime sentAt;
 
-    @Column(name = "Status")
+    @Column(name = "Status", length = 50)
     private String status;
-    @Column(name = "IsRead")
-    private boolean isRead;
 
-    // ... thêm Getter & Setter ...
+    @Column(name = "IsRead", nullable = false)
+    private boolean isRead = false;
 
-    public boolean isRead() {
-        return isRead;
+    @PrePersist
+    protected void onCreate() {
+        if (sentAt == null) sentAt = LocalDateTime.now();
     }
-
-    public void setRead(boolean read) {
-        isRead = read;
-    }
-    // Constructor rỗng (Bắt buộc phải có cho JPA)
-    public Notification() {}
-
-    // --- CÁCH TẠO GETTER & SETTER ---
-    // Đừng dùng @Data nữa.
-    // Trong IntelliJ, bạn nhấn chuột phải vào khoảng trống trong class -> Chọn "Generate..." -> "Getter and Setter" -> Chọn tất cả -> OK.
-    // IDE sẽ tự động viết code cho bạn, lỗi đỏ sẽ biến mất hoàn toàn.
-
-    public Long getNotificationID() { return notificationID; }
-    public void setNotificationID(Long notificationID) { this.notificationID = notificationID; }
-
-    public Long getContractID() { return contractID; }
-    public void setContractID(Long contractID) { this.contractID = contractID; }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
-
-    public LocalDateTime getSentAt() { return sentAt; }
-    public void setSentAt(LocalDateTime sentAt) { this.sentAt = sentAt; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
 }

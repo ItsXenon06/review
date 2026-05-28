@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public interface StatisticRepository extends JpaRepository<Payment, Long> {
+public interface StatisticRepository extends JpaRepository<Payment, Integer> {
 
     @Query(value = "SELECT SUM(Amount) FROM Payment WHERE PaymentType = 'Charge'", nativeQuery = true)
     Double getTotalRevenue();

@@ -3,7 +3,7 @@ package com.abc.backend.CNPM.service;
 
 import com.abc.backend.CNPM.dto.request.PhanQuyenRq;
 import com.abc.backend.CNPM.dto.response.PhanQuyenRp;
-import com.abc.backend.CNPM.exception.Exception;
+import com.abc.backend.CNPM.exception.AppException;
 import com.abc.backend.CNPM.model.PhanQuyen.DanhMucChucNang;
 import com.abc.backend.CNPM.model.PhanQuyen.NguoiDung;
 import com.abc.backend.CNPM.model.PhanQuyen.Quyen;
@@ -82,7 +82,7 @@ public class PhanQuyenService {
     public PhanQuyenRp taoVaiTro(PhanQuyenRq request) {
         // Kiểm tra tên vai trò đã tồn tại chưa
         if (vaiTroRepository.existsByTenVaiTro(request.getTenVaiTro())) {
-            throw Exception.daTotnai("Vai trò", "tên", request.getTenVaiTro());
+            throw AppException.daTotnai("Vai trò", "tên", request.getTenVaiTro());
         }
 
         VaiTro vaiTro = VaiTro.builder()
@@ -121,13 +121,13 @@ public class PhanQuyenService {
         // Không cho đổi tên vai trò Admin
         if (VAI_TRO_ADMIN.equalsIgnoreCase(vaiTro.getTenVaiTro())
                 && !VAI_TRO_ADMIN.equalsIgnoreCase(request.getTenVaiTro())) {
-            throw new Exception("Không thể đổi tên vai trò Admin", HttpStatus.FORBIDDEN);
+            throw new AppException("Không thể đổi tên vai trò Admin", HttpStatus.FORBIDDEN);
         }
 
         // Kiểm tra tên mới đã tồn tại chưa (nếu đổi tên)
         if (!vaiTro.getTenVaiTro().equals(request.getTenVaiTro())
                 && vaiTroRepository.existsByTenVaiTro(request.getTenVaiTro())) {
-            throw Exception.daTotnai("Vai trò", "tên", request.getTenVaiTro());
+            throw AppException.daTotnai("Vai trò", "tên", request.getTenVaiTro());
         }
 
         vaiTro.setTenVaiTro(request.getTenVaiTro());
@@ -152,12 +152,12 @@ public class PhanQuyenService {
         VaiTro vaiTro = timVaiTroTheoId(vaiTroId);
 
         if (VAI_TRO_ADMIN.equalsIgnoreCase(vaiTro.getTenVaiTro())) {
-            throw new Exception("Không thể xoá vai trò Admin", HttpStatus.FORBIDDEN);
+            throw new AppException("Không thể xoá vai trò Admin", HttpStatus.FORBIDDEN);
         }
 
         int soNguoiDung = nguoiDungRepository.countByVaiTroId(vaiTroId);
         if (soNguoiDung > 0) {
-            throw Exception.duLieuKhongHopLe(
+            throw AppException.duLieuKhongHopLe(
                     "Vai trò đang có " + soNguoiDung + " người dùng, không thể xoá");
         }
 

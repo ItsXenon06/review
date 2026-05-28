@@ -13,10 +13,15 @@ import java.util.List;
 @Repository
 public interface MaintenanceRecordRepository extends JpaRepository<MaintenanceRecord, Integer> {
 
-    @Query("SELECT new com.abc.backend.CNPM.dto.MaintenanceDTO(" +
-            "m.vehicle.vehicleId, m.vehicle.make, m.vehicle.licensePlate, " +
-            "m.description, m.nextServiceDate) " +
-            "FROM MaintenanceRecord m WHERE m.nextServiceDate >= :today")
-    List<MaintenanceDTO> findUpcomingMaintenance(@Param("today") LocalDate today);
+    List<MaintenanceRecord> findByVehicleVehicleIdOrderByServiceDateDesc(Integer vehicleId);
 
+    @Query("""
+        SELECT new com.abc.backend.CNPM.dto.MaintenanceDTO(
+            m.vehicle.vehicleId, m.vehicle.make, m.vehicle.licensePlate,
+            m.description, m.nextServiceDate)
+        FROM MaintenanceRecord m
+        WHERE m.nextServiceDate >= :today
+        ORDER BY m.nextServiceDate ASC
+    """)
+    List<MaintenanceDTO> findUpcomingMaintenance(@Param("today") LocalDate today);
 }

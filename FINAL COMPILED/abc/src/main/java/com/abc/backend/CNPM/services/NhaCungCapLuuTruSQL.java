@@ -38,7 +38,11 @@ public class NhaCungCapLuuTruSQL implements NhaCungCapLuuTru {
         String thamSoMoHinh    = (moHinh   != null && !moHinh.equalsIgnoreCase("Tất cả"))    ? moHinh        : null;
         String thamSoTrangThai = (trangThai != null && !trangThai.equalsIgnoreCase("Tất cả")) ? trangThai     : null;
 
-        return khoXe.filterVehicles(thamSoTimKiem, thamSoHang, thamSoMoHinh, thamSoTrangThai);
+        VehicleStatus statusEnum = null;
+if (thamSoTrangThai != null) {
+    try { statusEnum = VehicleStatus.valueOf(thamSoTrangThai); } catch (IllegalArgumentException ignored) {}
+}
+return khoXe.filterVehicles(thamSoTimKiem, thamSoHang, thamSoMoHinh, thamSoTrangThai, statusEnum);
     }
 
     /**

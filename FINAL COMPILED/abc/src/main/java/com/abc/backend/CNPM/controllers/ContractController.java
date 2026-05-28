@@ -7,15 +7,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/dashboard")
 public class ContractController {
 
     @Autowired
     private ContractService contractService;
 
     // Chỉ giữ lại logic hiển thị View
-    @GetMapping("/notifications")
-    public String showNotifications(Model model) {
+    @GetMapping("/contracts")
+    public String contractsPage(Model model) {
         model.addAttribute("expiringContracts", contractService.findAllExpiring());
         return "main-dashboard";
     }

@@ -7,7 +7,10 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    long countByIsReadFalse();
 
     List<Notification> findTop5ByOrderBySentAtDesc();
+
+    long countByIsReadFalse();
+
+    List<Notification> findByContractIDOrderBySentAtDesc(Long contractId);
 }
