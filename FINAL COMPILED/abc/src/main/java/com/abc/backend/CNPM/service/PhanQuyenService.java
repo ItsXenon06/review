@@ -3,7 +3,7 @@ package com.abc.backend.CNPM.service;
 
 import com.abc.backend.CNPM.dto.request.PhanQuyenRq;
 import com.abc.backend.CNPM.dto.response.PhanQuyenRp;
-import com.abc.backend.CNPM.exception.AppException;
+//import com.abc.backend.CNPM.exception.AppException;
 import com.abc.backend.CNPM.model.PhanQuyen.DanhMucChucNang;
 import com.abc.backend.CNPM.model.PhanQuyen.NguoiDung;
 import com.abc.backend.CNPM.model.PhanQuyen.Quyen;
@@ -13,6 +13,7 @@ import com.abc.backend.CNPM.repository.PhanQuyen.QuyenRepository;
 import com.abc.backend.CNPM.repository.PhanQuyen.VaiTroRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.abc.backend.CNPM.exception.AppException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -286,7 +287,7 @@ public class PhanQuyenService {
     @Transactional
     public PhanQuyenRp ganVaiTroChoNguoiDung(PhanQuyenRq request) {
         NguoiDung nguoiDung = nguoiDungRepository.findById(request.getNguoiDungId())
-                .orElseThrow(() -> Exception.khongTimThay("Người dùng", request.getNguoiDungId()));
+                .orElseThrow(() -> AppException.khongTimThay("Người dùng", request.getNguoiDungId()));
 
         VaiTro vaiTro = timVaiTroTheoId(request.getVaiTroId());
 
@@ -307,7 +308,7 @@ public class PhanQuyenService {
     @Transactional(readOnly = true)
     public boolean kiemTraQuyen(Long nguoiDungId, String danhMucChucNang, String loaiQuyen) {
         NguoiDung nguoiDung = nguoiDungRepository.findById(nguoiDungId)
-                .orElseThrow(() -> Exception.khongTimThay("Người dùng", nguoiDungId));
+                .orElseThrow(() -> AppException.khongTimThay("Người dùng", nguoiDungId));
 
         if (nguoiDung.getVaiTro() == null) return false;
         if (nguoiDung.getVaiTro().getLaToanQuyen()) return true;
@@ -330,7 +331,7 @@ public class PhanQuyenService {
 
     private VaiTro timVaiTroTheoId(Long id) {
         return vaiTroRepository.findById(id)
-                .orElseThrow(() -> Exception.khongTimThay("Vai trò", id));
+                .orElseThrow(() -> AppException.khongTimThay("Vai trò", id));
     }
 
     private void taoQuyenMacDinh(VaiTro vaiTro) {

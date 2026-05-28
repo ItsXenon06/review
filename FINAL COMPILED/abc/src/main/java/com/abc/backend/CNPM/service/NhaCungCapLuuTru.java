@@ -1,4 +1,4 @@
-package com.abc.backend.CNPM.Storage.Provider;
+package com.abc.backend.CNPM.service;
 
 import com.abc.backend.CNPM.model.Vehicle;
 

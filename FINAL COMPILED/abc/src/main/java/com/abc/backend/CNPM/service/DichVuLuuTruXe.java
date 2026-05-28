@@ -1,6 +1,6 @@
-package com.abc.backend.CNPM.Storage.Service;
+package com.abc.backend.CNPM.service;
 
-import com.abc.backend.CNPM.Storage.Provider.NhaCungCapLuuTru;
+import com.abc.backend.CNPM.service.NhaCungCapLuuTru;
 import com.abc.backend.CNPM.model.Vehicle;
 import com.abc.backend.CNPM.model.enums.VehicleStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class DichVuLuuTruXe {
         return nhaCungCapLuuTru.luuXe(xe);
     }
 
-    public void xoaXe(Long id) {
+    public void xoaXe(Integer id) {
         nhaCungCapLuuTru.xoaXe(id);
     }
 }

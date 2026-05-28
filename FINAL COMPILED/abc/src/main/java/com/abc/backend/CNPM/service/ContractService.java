@@ -1,4 +1,4 @@
-package com.abc.backend.CNPM.Service;
+package com.abc.backend.CNPM.service;
 
 import com.abc.backend.CNPM.model.Contract;
 import com.abc.backend.CNPM.repository.ContractRepository;
@@ -13,7 +13,7 @@ import java.util.Optional;
 public class ContractService {
 
     @Autowired
-    private ContractRepository contractRepository;
+private ContractRepository contractRepository;
 
     public List<Contract> findAllExpiring() {
         return contractRepository.findAll();

@@ -1,4 +1,4 @@
-package com.abc.backend.CNPM.Service;
+package com.abc.backend.CNPM.service;
 
 import com.abc.backend.CNPM.model.Notification; // Đảm bảo import đúng Model của bạn
 import com.abc.backend.CNPM.repository.NotificationRepository; // Bạn cần tạo file Repository này

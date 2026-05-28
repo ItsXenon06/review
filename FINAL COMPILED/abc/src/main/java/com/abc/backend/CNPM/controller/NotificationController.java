@@ -1,4 +1,4 @@
-package com.abc.backend.CNPM.Controller;
+package com.abc.backend.CNPM.controller;
 
 import com.abc.backend.CNPM.model.Notification;
 import com.abc.backend.CNPM.repository.NotificationRepository;

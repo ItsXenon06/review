@@ -1,4 +1,4 @@
-package main.java.com.abc.backend.CNPM.exception;
+package com.abc.backend.CNPM.Exception;
 
 import org.springframework.http.HttpStatus;
 

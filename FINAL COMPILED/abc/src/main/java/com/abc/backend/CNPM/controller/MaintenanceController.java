@@ -1,7 +1,7 @@
-package com.abc.backend.CNPM.Controller;
+package com.abc.backend.CNPM.controller;
 import com.abc.backend.CNPM.model.MaintenanceRecord;
 import com.abc.backend.CNPM.dto.MaintenanceDTO;
-import com.abc.backend.CNPM.Service.MaintenanceService; // Đảm bảo đã import
+import com.abc.backend.CNPM.service.MaintenanceService; // Đảm bảo đã import
 import com.abc.backend.CNPM.repository.MaintenanceRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package com.abc.backend.CNPM.Storage.Provider;
+package com.abc.backend.CNPM.service;
 
 import com.abc.backend.CNPM.model.Vehicle;
 import com.abc.backend.CNPM.model.enums.VehicleStatus;
@@ -74,7 +74,7 @@ return khoXe.filterVehicles(thamSoTimKiem, thamSoHang, thamSoMoHinh, thamSoTrang
      * Xóa xe khỏi cơ sở dữ liệu theo ID
      */
     @Override
-    public void xoaXe(Long id) {
-        khoXe.deleteById(id);
-    }
+    public void xoaXe(Integer id) {
+    khoXe.deleteById(id);
+}
 }

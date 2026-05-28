@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tra cứu - Quản lý thuê xe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        :root{--primary:#1d6fe8;--bg:#f1f5f9;--border:#e2e8f0;}
+        body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);margin:0;}
+        .sidebar{width:260px;background:#0f172a;position:fixed;height:100vh;overflow-y:auto;top:0;left:0;z-index:100;}
+        .main-wrap{margin-left:260px;min-height:100vh;}
+        .topbar{height:60px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;position:sticky;top:0;z-index:50;}
+        .page-content{padding:28px;}
+        .search-hero{background:#fff;border-radius:14px;padding:28px;margin-bottom:24px;border:1px solid var(--border);}
+        .search-wrap{display:flex;gap:12px;}
+        .search-wrap input{flex:1;padding:11px 16px;border:2px solid var(--border);border-radius:10px;font-size:15px;outline:none;transition:.15s;font-family:inherit;}
+        .search-wrap input:focus{border-color:var(--primary);}
+        .btn-search{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+        .btn-search:hover{background:#1558c0;}
+        .result-tabs{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:20px;}
+        .rtab{padding:9px 18px;font-size:14px;font-weight:500;background:none;border:none;cursor:pointer;color:#64748b;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit;transition:.15s;}
+        .rtab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600;}
+        .result-card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
+        table{width:100%;border-collapse:collapse;}
+        th{background:#f8fafc;padding:10px 16px;font-size:12px;font-weight:600;color:#64748b;text-align:left;border-bottom:1px solid var(--border);}
+        td{padding:11px 16px;font-size:14px;border-bottom:1px solid #f1f5f9;color:#1e293b;}
+        tbody tr:last-child td{border-bottom:none;}
+        tbody tr:hover td{background:#f8fafc;}
+        .badge-av{background:#dcfce7;color:#166534;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+        .badge-re{background:#dbeafe;color:#1e40af;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+        .badge-ma{background:#fef3c7;color:#92400e;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+        .empty-state{text-align:center;padding:48px;color:#94a3b8;}
+        .empty-state i{font-size:48px;margin-bottom:12px;display:block;}
+        /* sidebar */
+        .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px;border-bottom:1px solid rgba(255,255,255,.06);}
+        .logo-icon{width:36px;height:36px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;}
+        .logo-text{font-size:13px;font-weight:700;color:#fff;line-height:1.3;}
+        .sidebar nav{padding:12px;}
+        .sidebar-link{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:8px;color:#94a3b8;text-decoration:none;font-size:14px;font-weight:500;transition:.15s;margin-bottom:2px;}
+        .sidebar-link:hover{background:rgba(255,255,255,.06);color:#cbd5e1;}
+        .sidebar-link.active{background:var(--primary);color:#fff;}
+        .sidebar-link i{font-size:16px;width:20px;text-align:center;}
+        .sidebar-support{margin:12px;padding:14px 16px;background:rgba(29,111,232,.18);border-radius:12px;}
+        .sidebar-support p{font-size:12px;margin:0 0 2px;color:#94a3b8;}
+        .sidebar-support .phone{font-size:15px;font-weight:700;color:#60a5fa;}
+    </style>
+</head>
+<body>
+<div style="display:flex;">
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon"><i class="bi bi-car-front-fill"></i></div>
+            <div class="logo-text">QUẢN LÝ<br>THUÊ XE TỰ LÁI</div>
+        </div>
+        <nav>
+            <a href="/dashboard"     class="sidebar-link"><i class="bi bi-grid-1x2"></i> Tổng quan</a>
+            <a href="/storage"       class="sidebar-link"><i class="bi bi-archive"></i> Lưu trữ</a>
+            <a href="/search"        class="sidebar-link active"><i class="bi bi-search"></i> Tra cứu</a>
+            <a href="/statistic"     class="sidebar-link"><i class="bi bi-bar-chart-line"></i> Thống kê</a>
+            <a href="/calculation"   class="sidebar-link"><i class="bi bi-calculator"></i> Tính toán</a>
+            <a href="/contracts"     class="sidebar-link"><i class="bi bi-file-earmark-text"></i> Hợp đồng</a>
+            <a href="/customers"     class="sidebar-link"><i class="bi bi-people"></i> Khách hàng</a>
+            <a href="/vehicles"      class="sidebar-link"><i class="bi bi-car-front"></i> Xe</a>
+            <a href="/payments"      class="sidebar-link"><i class="bi bi-credit-card"></i> Thanh toán</a>
+            <a href="/notifications" class="sidebar-link"><i class="bi bi-bell"></i> Thông báo</a>
+            <a href="/roles"         class="sidebar-link"><i class="bi bi-shield-check"></i> Phân quyền</a>
+            <a href="/settings"      class="sidebar-link"><i class="bi bi-gear"></i> Cài đặt</a>
+            <a href="/logout"        class="sidebar-link"><i class="bi bi-box-arrow-left"></i> Đăng xuất</a>
+        </nav>
+        <div class="sidebar-support">
+            <p>Hỗ trợ 24/7</p>
+            <div class="phone">1900 1234 567</div>
+        </div>
+    </aside>
+
+    <div class="main-wrap">
+        <header class="topbar">
+            <span style="font-weight:700;font-size:15px;">Tra cứu</span>
+            <span style="flex:1;"></span>
+            <span style="font-size:13px;color:#64748b;" th:if="${not #strings.isEmpty(q)}">
+                Kết quả cho: <strong th:text="${q}"></strong>
+            </span>
+        </header>
+
+        <main class="page-content">
+            <div class="search-hero">
+                <h5 style="margin:0 0 6px;font-weight:700;">Tìm kiếm toàn bộ hệ thống</h5>
+                <p style="font-size:13px;color:#64748b;margin:0 0 16px;">Tìm theo biển số xe, tên khách hàng, email, số bằng lái xe, mã đặt xe...</p>
+                <form th:action="@{/search}" method="get">
+                    <input type="hidden" name="tab" th:value="${tab}"/>
+                    <div class="search-wrap">
+                        <input type="text" name="q" th:value="${q}"
+                               placeholder="Ví dụ: 51A-12345, Nguyen Van An, 0901234567..."/>
+                        <button type="submit" class="btn-search">
+                            <i class="bi bi-search me-1"></i> Tìm kiếm
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="result-tabs">
+                <button class="rtab" th:classappend="${tab=='vehicle'}?'active'"
+                        onclick="switchTab('vehicle', this)">
+                    <i class="bi bi-car-front me-1"></i> Xe
+                    <span th:if="${vehicles != null}"
+                          th:text="'(' + ${#lists.size(vehicles)} + ')'"></span>
+                </button>
+                <button class="rtab" th:classappend="${tab=='customer'}?'active'"
+                        onclick="switchTab('customer', this)">
+                    <i class="bi bi-people me-1"></i> Khách hàng
+                    <span th:if="${customers != null}"
+                          th:text="'(' + ${#lists.size(customers)} + ')'"></span>
+                </button>
+                <button class="rtab" th:classappend="${tab=='reservation'}?'active'"
+                        onclick="switchTab('reservation', this)">
+                    <i class="bi bi-calendar-check me-1"></i> Đặt xe
+                    <span th:if="${reservations != null}"
+                          th:text="'(' + ${#lists.size(reservations)} + ')'"></span>
+                </button>
+            </div>
+
+            <!-- Tab: Xe -->
+            <div id="tab-vehicle" class="result-card">
+                <div th:if="${#lists.isEmpty(vehicles)}" class="empty-state">
+                    <i class="bi bi-car-front"></i>
+                    <p th:text="${#strings.isEmpty(q)} ? 'Nhập từ khóa để tìm kiếm xe' : 'Không tìm thấy xe phù hợp'"></p>
+                </div>
+                <table th:unless="${#lists.isEmpty(vehicles)}">
+                    <thead>
+                    <tr>
+                        <th>Biển số</th>
+                        <th>Hãng / Model</th>
+                        <th>Năm</th>
+                        <th>Loại nhiên liệu</th>
+                        <th>Số chỗ</th>
+                        <th>Km hiện tại</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="v : ${vehicles}">
+                        <td style="font-weight:600;" th:text="${v.licensePlate}"></td>
+                        <td th:text="${v.make + ' ' + v.model}"></td>
+                        <td th:text="${v.year}"></td>
+                        <td th:text="${v.fuelType}"></td>
+                        <td th:text="${v.seatingCapacity}"></td>
+                        <td th:text="${#numbers.formatInteger(v.currentMileage, 1, 'COMMA') + ' km'}"></td>
+                        <td>
+                            <span class="badge-av" th:if="${v.status.name() == 'Available'}">Sẵn sàng</span>
+                            <span class="badge-re" th:if="${v.status.name() == 'Rented'}">Đang thuê</span>
+                            <span class="badge-ma" th:if="${v.status.name() == 'Maintenance'}">Bảo dưỡng</span>
+                            <span th:if="${v.status.name() == 'Retired'}"
+                                  style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:#f1f5f9;color:#64748b;">Ngừng HĐ</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tab: Khách hàng -->
+            <div id="tab-customer" class="result-card" style="display:none;">
+                <div th:if="${#lists.isEmpty(customers)}" class="empty-state">
+                    <i class="bi bi-people"></i>
+                    <p th:text="${#strings.isEmpty(q)} ? 'Nhập từ khóa để tìm kiếm khách hàng' : 'Không tìm thấy khách hàng phù hợp'"></p>
+                </div>
+                <table th:unless="${#lists.isEmpty(customers)}">
+                    <thead>
+                    <tr>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Số bằng lái</th>
+                        <th>Hạn bằng lái</th>
+                        <th>Quốc gia</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="c : ${customers}">
+                        <td style="font-weight:600;" th:text="${c.firstName + ' ' + c.lastName}"></td>
+                        <td th:text="${c.email}"></td>
+                        <td th:text="${c.phoneNumber}"></td>
+                        <td th:text="${c.driverLicenseNo}"></td>
+                        <td th:text="${c.licenseExpiry}"></td>
+                        <td th:text="${c.licenseCountry}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tab: Đặt xe -->
+            <div id="tab-reservation" class="result-card" style="display:none;">
+                <div th:if="${#lists.isEmpty(reservations)}" class="empty-state">
+                    <i class="bi bi-calendar-check"></i>
+                    <p th:text="${#strings.isEmpty(q)} ? 'Nhập từ khóa để tìm kiếm đặt xe' : 'Không tìm thấy đơn đặt xe phù hợp'"></p>
+                </div>
+                <table th:unless="${#lists.isEmpty(reservations)}">
+                    <thead>
+                    <tr>
+                        <th>Mã đặt xe</th>
+                        <th>Xe</th>
+                        <th>Khách hàng</th>
+                        <th>Ngày nhận</th>
+                        <th>Ngày trả</th>
+                        <th>Tổng ngày</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="r : ${reservations}">
+                        <td style="font-weight:600;" th:text="'#' + ${r.reservationId}"></td>
+                        <td th:text="${r.vehicle.make + ' ' + r.vehicle.model + ' — ' + r.vehicle.licensePlate}"></td>
+                        <td th:text="${r.customer.firstName + ' ' + r.customer.lastName}"></td>
+                        <td th:text="${r.pickupDate}"></td>
+                        <td th:text="${r.returnDate}"></td>
+                        <td th:text="${r.totalDays + ' ngày'}"></td>
+                        <td th:text="${r.status}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const activeTab = /*[[${tab}]]*/ 'vehicle';
+
+    function switchTab(tab, el) {
+        ['vehicle', 'customer', 'reservation'].forEach(t => {
+            document.getElementById('tab-' + t).style.display = (t === tab) ? '' : 'none';
+        });
+        document.querySelectorAll('.rtab').forEach(b => b.classList.remove('active'));
+        if (el) el.classList.add('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const active = document.querySelector('.rtab[th\\:classappend]');
+        switchTab(activeTab, null);
+        document.querySelectorAll('.rtab').forEach(b => {
+            if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + activeTab + "'")) {
+                b.classList.add('active');
+            }
+        });
+    });
+</script>
+</body>
+</html>

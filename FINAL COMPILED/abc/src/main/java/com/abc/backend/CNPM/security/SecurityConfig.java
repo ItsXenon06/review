@@ -1,4 +1,4 @@
-package com.abc.backend.CNPM.config;
+package com.abc.backend.CNPM.security;
 
 import com.abc.backend.CNPM.service.JwtAuthenticationFilter;
 import com.abc.backend.CNPM.service.NguoiDungDetailsService;

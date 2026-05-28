@@ -75,7 +75,7 @@
                                                 <strong th:text="${contract.expired} ? 'Hợp đồng quá hạn' : 'Hợp đồng sắp hết hạn'">
                                                     Hợp đồng sắp hết hạn
                                                 </strong>
-                                                <p th:text="'Hợp đồng HD' + (${contract.contractID != null} ? ${#numbers.formatInteger(contract.contractID, 6)} : '000000') + ' của khách hàng ' + (${contract.customer != null} ? (${contract.customer.firstName} + ' ' + ${contract.customer.lastName}) : 'Ẩn danh')"></p>
+                                                <p th:text="'Hợp đồng HD' + (${contract.contractId != null} ? ${#numbers.formatInteger(contract.contractId, 6)} : '000000') + ' của khách hàng ' + (${contract.customer != null} ? (${contract.customer.firstName} + ' ' + ${contract.customer.lastName}) : 'Ẩn danh')"></p>
                                                 <small th:text="${contract.daysRemainingStatus}"></small>
                                             </div>
                                             <span class="time-stamp" th:text="${contract.endDate != null} ? ${#temporals.format(contract.endDate, 'HH:mm')} : '--:--'">10:30</span>

@@ -291,3 +291,105 @@ INSERT INTO Customer (FirstName, LastName, Email, PhoneNumber, DateOfBirth, Driv
                                                                                                                                 ('Le',     'Minh Duc', 'duc.le@email.com',      '0923456789', '1995-03-08', 'VN-B2-0034567', '2029-03-08', 'VN');
 
 GO
+------
+--THIS PART IS BECAUSE OF KHIEM DONT BLAME JWT LOGIN, FORSHADOWING AT 3AM BTW :))
+-- ============================================================
+-- ============================================================
+--  PATCH ADDITIONS — append after the existing script.sql
+-- ============================================================
+
+-- Contract table (required by ContractService / DashboardController)
+IF OBJECT_ID('Contract', 'U') IS NULL
+CREATE TABLE Contract (
+    ContractId  INT       IDENTITY(1,1) PRIMARY KEY,
+    CustomerID  INT       NOT NULL REFERENCES Customer(CustomerID),
+    StartDate   DATETIME2 NULL,
+    EndDate     DATETIME2 NULL
+);
+CREATE INDEX IX_Contract_Customer ON Contract(CustomerID);
+
+-- Notification table (includes IsRead column required by NotificationRepository)
+IF OBJECT_ID('Notification', 'U') IS NULL
+CREATE TABLE Notification (
+    NotificationID INT            IDENTITY(1,1) PRIMARY KEY,
+    ContractID     INT            NULL REFERENCES Contract(ContractId),
+    Title          NVARCHAR(200)  NULL,
+    Content        NVARCHAR(MAX)  NULL,
+    SentAt         DATETIME2      NOT NULL DEFAULT SYSDATETIME(),
+    Status         NVARCHAR(50)   NULL,
+    IsRead         BIT            NOT NULL DEFAULT 0
+);
+
+-- Authorization tables (JPA entities VaiTro / NguoiDung / Quyen exist but no DDL)
+IF OBJECT_ID('vai_tro', 'U') IS NULL
+CREATE TABLE vai_tro (
+    id             BIGINT        IDENTITY(1,1) PRIMARY KEY,
+    ten_vai_tro    NVARCHAR(100) NOT NULL UNIQUE,
+    mo_ta          NVARCHAR(255) NULL,
+    la_toan_quyen  BIT           NOT NULL DEFAULT 0,
+    ngay_tao       DATETIME2     NOT NULL DEFAULT SYSDATETIME(),
+    ngay_cap_nhat  DATETIME2     NOT NULL DEFAULT SYSDATETIME()
+);
+
+IF OBJECT_ID('nguoi_dung', 'U') IS NULL
+CREATE TABLE nguoi_dung (
+    id             BIGINT        IDENTITY(1,1) PRIMARY KEY,
+    ho_ten         NVARCHAR(150) NOT NULL,
+    email          NVARCHAR(150) NOT NULL UNIQUE,
+    mat_khau       NVARCHAR(255) NOT NULL,
+    so_dien_thoai  NVARCHAR(20)  NULL,
+    vai_tro_id     BIGINT        NULL REFERENCES vai_tro(id),
+    trang_thai     BIT           NOT NULL DEFAULT 1,
+    ngay_tao       DATETIME2     NOT NULL DEFAULT SYSDATETIME()
+);
+
+IF OBJECT_ID('quyen', 'U') IS NULL
+CREATE TABLE quyen (
+    id                   BIGINT       IDENTITY(1,1) PRIMARY KEY,
+    vai_tro_id           BIGINT       NOT NULL REFERENCES vai_tro(id),
+    danh_muc_chuc_nang   NVARCHAR(50) NOT NULL,
+    xem                  BIT          NOT NULL DEFAULT 0,
+    them                 BIT          NOT NULL DEFAULT 0,
+    sua                  BIT          NOT NULL DEFAULT 0,
+    xoa                  BIT          NOT NULL DEFAULT 0,
+    xuat_du_lieu         BIT          NOT NULL DEFAULT 0,
+    phan_quyen           BIT          NOT NULL DEFAULT 0,
+    CONSTRAINT UQ_quyen_vaitro_danhmuc UNIQUE (vai_tro_id, danh_muc_chuc_nang)
+);
+
+-- Seed: Admin role
+INSERT INTO vai_tro (ten_vai_tro, mo_ta, la_toan_quyen)
+SELECT N'Admin', N'Toàn quyền hệ thống', 1
+WHERE NOT EXISTS (SELECT 1 FROM vai_tro WHERE ten_vai_tro = N'Admin');
+
+-- Seed: Admin user (BCrypt of 'admin123' — change before production)
+INSERT INTO nguoi_dung (ho_ten, email, mat_khau, so_dien_thoai, vai_tro_id, trang_thai)
+SELECT N'Quản trị viên', 'admin@thuexe.vn',
+       '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+       '0901234567',
+       (SELECT id FROM vai_tro WHERE ten_vai_tro = N'Admin'),
+       1
+WHERE NOT EXISTS (SELECT 1 FROM nguoi_dung WHERE email = 'admin@thuexe.vn');
+
+-- Seed: Valid maintenance records (only English values pass CHECK constraint)
+INSERT INTO MaintenanceRecord
+    (VehicleID, MaintenanceType, Description, MileageAtService, ServiceDate, NextServiceDate, Cost, ServiceProvider)
+SELECT v.VehicleID, 'Routine',
+    N'Kiểm tra định kỳ 45,000 km', 45000, '2025-01-10', '2026-01-10', 850000, N'Garage Toyota Q7'
+FROM Vehicle v WHERE v.LicensePlate = '51A-12345'
+AND NOT EXISTS (SELECT 1 FROM MaintenanceRecord m WHERE m.VehicleID = v.VehicleID AND m.ServiceDate = '2025-01-10');
+
+INSERT INTO MaintenanceRecord
+    (VehicleID, MaintenanceType, Description, MileageAtService, ServiceDate, NextServiceDate, Cost, ServiceProvider)
+SELECT v.VehicleID, 'Oil Change',
+    N'Thay dầu động cơ và lọc dầu', 60000, '2025-03-20', '2025-09-20', 450000, N'Garage Ford Q1'
+FROM Vehicle v WHERE v.LicensePlate = '51C-45678'
+AND NOT EXISTS (SELECT 1 FROM MaintenanceRecord m WHERE m.VehicleID = v.VehicleID AND m.ServiceDate = '2025-03-20');
+
+INSERT INTO MaintenanceRecord
+    (VehicleID, MaintenanceType, Description, MileageAtService, ServiceDate, NextServiceDate, Cost, ServiceProvider)
+SELECT v.VehicleID, 'Repair',
+    N'Sửa hệ thống phanh ABS', 41000, '2025-04-05', '2026-04-05', 2300000, N'Trung tâm Ford'
+FROM Vehicle v WHERE v.LicensePlate = '51C-56789'
+AND NOT EXISTS (SELECT 1 FROM MaintenanceRecord m WHERE m.VehicleID = v.VehicleID AND m.ServiceDate = '2025-04-05');
+GO

@@ -1,4 +1,4 @@
-package com.abc.backend.CNPM.Service;
+package com.abc.backend.CNPM.service;
 
 import com.abc.backend.CNPM.dto.MaintenanceDTO;
 import com.abc.backend.CNPM.repository.MaintenanceRecordRepository;

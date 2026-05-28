@@ -1,6 +1,6 @@
-package com.abc.backend.CNPM.Controller;
+package com.abc.backend.CNPM.controller;
 
-import com.abc.backend.CNPM.Service.ContractService;
+import com.abc.backend.CNPM.service.ContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
