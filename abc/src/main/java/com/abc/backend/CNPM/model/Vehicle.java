@@ -5,7 +5,6 @@ import com.abc.backend.CNPM.model.enums.TransmissionType;
 import com.abc.backend.CNPM.model.enums.VehicleStatus;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.Instant;
 import java.time.LocalDate;
 
@@ -17,7 +16,7 @@ public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "VehicleID")
-    private Long vehicleId;
+    private Integer vehicleId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "CategoryID", nullable = false)
@@ -81,3 +80,4 @@ public class Vehicle {
         updatedAt = Instant.now();
     }
 }
+

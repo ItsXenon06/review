@@ -15,8 +15,8 @@ public class Contract {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ContractID")
-    private Integer contractID;
+    @Column(name = "ContractId")
+    private Integer contractId;
 
     // Quan hệ với Customer - Hibernate sẽ tự tìm cột CustomerID dựa trên @JoinColumn
     @ManyToOne(fetch = FetchType.EAGER)

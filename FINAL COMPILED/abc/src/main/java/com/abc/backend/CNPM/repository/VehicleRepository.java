@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface VehicleRepository extends JpaRepository<Vehicle, Integer> {
-
+// ✅ Đúng
+public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     List<Vehicle> findByStatus(VehicleStatus status);
 
     List<Vehicle> findByCategoryCategoryId(Integer categoryId);
@@ -23,25 +23,44 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Integer> {
 
     Optional<Vehicle> findByVin(String vin);
 
-    /** Vehicles NOT in any active (Pending/Confirmed/Active) reservation for the date range. */
+    // Đếm số xe theo trạng thái (dùng cho thống kê bảng điều khiển)
+    long countByStatus(VehicleStatus status);
+
+    // Lọc xe theo từ khóa, hãng, mô hình và trạng thái (dùng cho tìm kiếm)
+    @Query("""
+        SELECT v FROM Vehicle v
+        WHERE (:tuKhoa IS NULL OR
+                LOWER(v.licensePlate) LIKE LOWER(CONCAT('%', :tuKhoa, '%'))
+             OR LOWER(v.brand)        LIKE LOWER(CONCAT('%', :tuKhoa, '%'))
+             OR LOWER(v.model)        LIKE LOWER(CONCAT('%', :tuKhoa, '%')))
+          AND (:hangXe    IS NULL OR v.brand  = :hangXe)
+          AND (:moHinh    IS NULL OR v.model  = :moHinh)
+          AND (:trangThai IS NULL OR CAST(v.status AS string) = :trangThai)
+    """)
+    List<Vehicle> filterVehicles(
+            @Param("tuKhoa")    String tuKhoa,
+            @Param("hangXe")    String hangXe,
+            @Param("moHinh")    String moHinh,
+            @Param("trangThai") String trangThai);
+
+    // Xe không trong bất kỳ đặt chỗ nào đang hoạt động trong khoảng thời gian
     @Query("""
         SELECT v FROM Vehicle v
         WHERE v.status = 'Available'
           AND v.vehicleId NOT IN (
               SELECT r.vehicle.vehicleId FROM Reservation r
               WHERE r.status IN ('Pending','Confirmed','Active')
-                AND r.pickupDate < :returnDate
-                AND r.returnDate > :pickupDate
+                AND r.pickupDate < :ngayTra
+                AND r.returnDate > :ngayNhan
           )
     """)
     List<Vehicle> findAvailableForDateRange(
-            @Param("pickupDate") LocalDate pickupDate,
-            @Param("returnDate") LocalDate returnDate);
+            @Param("ngayNhan") LocalDate ngayNhan,
+            @Param("ngayTra")  LocalDate ngayTra);
 
-    /** Count of vehicles currently rented (for demand-pricing occupancy calc). */
+    // Đếm số xe đang được thuê (dùng tính giá theo nhu cầu)
     @Query("SELECT COUNT(v) FROM Vehicle v WHERE v.status = 'Rented'")
     long countRented();
 
     long countByStatusNot(VehicleStatus status);
 }
-
