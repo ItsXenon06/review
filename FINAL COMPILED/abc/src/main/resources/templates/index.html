@@ -287,8 +287,9 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td>1. Tiền thuê xe (<span th:text="${calcResult.baseRentalCharge / calcResult.dailyRate}"></span> ngày)</td>
-                                    <td class="text-muted-c" th:text="${#numbers.formatDecimal(calcResult.dailyRate,1,'COMMA',0,'POINT')+' đ × '+(calcResult.baseRentalCharge / calcResult.dailyRate)+' ngày'}"></td>
+                                    <td th:text="'1. Tiền thuê xe (' + ${calcResult.totalDays + (calcResult.extraHours > 0 ? 1 : 0)} + ' ngày tính tiền)'"></td>
+<td class="text-muted-c"
+    th:text="${(calcResult.totalDays + (calcResult.extraHours > 0 ? 1 : 0))+' ngày × '+#numbers.formatDecimal(calcResult.insuranceDailyRate,1,'COMMA',0,'POINT')+' đ'}"></td>
                                     <td style="text-align:right" th:text="${#numbers.formatDecimal(calcResult.baseRentalCharge,1,'COMMA',0,'POINT')}"></td>
                                 </tr>
                                 <tr>

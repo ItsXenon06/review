@@ -2,7 +2,6 @@ package com.abc.backend.CNPM.service;
 
 import com.abc.backend.CNPM.repository.StatisticRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Map;
 
@@ -16,13 +15,13 @@ public class StatisticService {
     }
 
     public Double getTotalRevenue() {
-        Double revenue = statisticRepository.getTotalRevenue();
-        return revenue != null ? revenue : 0.0;
+        Double r = statisticRepository.getTotalRevenue();
+        return r != null ? r : 0.0;
     }
 
     public Long getTotalBookings() {
-        Long count = statisticRepository.getTotalBookings();
-        return count != null ? count : 0L;
+        Long c = statisticRepository.getTotalBookings();
+        return c != null ? c : 0L;
     }
 
     public List<Map<String, Object>> getVehicleStatusStats() {
@@ -31,5 +30,13 @@ public class StatisticService {
 
     public List<Map<String, Object>> getMonthlyRevenueStats() {
         return statisticRepository.getMonthlyRevenueStats();
+    }
+
+    public List<Map<String, Object>> getTopVehicles() {
+        return statisticRepository.getTopVehicles();
+    }
+
+    public List<Map<String, Object>> getReservationStatusStats() {
+        return statisticRepository.getReservationStatusStats();
     }
 }

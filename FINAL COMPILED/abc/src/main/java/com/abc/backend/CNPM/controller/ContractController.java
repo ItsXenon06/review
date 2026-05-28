@@ -18,6 +18,6 @@ public class ContractController {
         model.addAttribute("expiringContracts", contractService.findAllExpiring());
         return "main-dashboard";
     }
-
+    
     // ĐÃ XÓA phương thức @PostMapping trùng lặp ở đây
 }

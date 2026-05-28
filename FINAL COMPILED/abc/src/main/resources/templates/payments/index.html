@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Thanh toán - Quản lý thuê xe</title>
+  <th:block th:replace="~{fragments/shared-styles :: styles}"></th:block>
+</head>
+<body>
+<div class="layout">
+  <th:block th:replace="~{fragments/sidebar :: sidebar('payments')}"></th:block>
+  <div class="main-wrap">
+    <th:block th:replace="~{fragments/topbar :: topbar('Thanh toán')}"></th:block>
+    <main class="page-content">
+      <div class="d-flex align-items-start justify-content-between mb-4">
+        <div>
+          <h1 class="page-title">Thanh toán</h1>
+          <p class="page-subtitle">Quản lý tất cả giao dịch thanh toán trong hệ thống.</p>
+        </div>
+        <button class="btn btn-primary d-flex align-items-center gap-2"
+                data-bs-toggle="modal" data-bs-target="#modalAddPayment">
+          <i class="bi bi-plus-lg"></i> Thêm thanh toán
+        </button>
+      </div>
+
+      <!-- Flash -->
+      <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle me-2"></i><span th:text="${successMsg}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${errorMsg}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+
+      <!-- Summary cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="data-card p-4 d-flex align-items-center gap-3">
+            <div style="width:48px;height:48px;background:#e8f0fe;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--primary);">
+              <i class="bi bi-currency-dollar"></i>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--text-muted);">Tổng thu (Charge)</div>
+              <div style="font-size:20px;font-weight:700;color:var(--primary);"
+                   th:text="${#numbers.formatDecimal(totalCharge,1,'COMMA',0,'POINT') + ' đ'}">0 đ</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="data-card p-4 d-flex align-items-center gap-3">
+            <div style="width:48px;height:48px;background:#e6f9f0;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#22c55e;">
+              <i class="bi bi-wallet2"></i>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--text-muted);">Đặt cọc (Deposit)</div>
+              <div style="font-size:20px;font-weight:700;color:#22c55e;"
+                   th:text="${#numbers.formatDecimal(totalDeposit,1,'COMMA',0,'POINT') + ' đ'}">0 đ</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="data-card p-4 d-flex align-items-center gap-3">
+            <div style="width:48px;height:48px;background:#fee2e2;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--danger);">
+              <i class="bi bi-arrow-return-left"></i>
+            </div>
+            <div>
+              <div style="font-size:12px;color:var(--text-muted);">Hoàn trả (Refund)</div>
+              <div style="font-size:20px;font-weight:700;color:var(--danger);"
+                   th:text="${#numbers.formatDecimal(totalRefund,1,'COMMA',0,'POINT') + ' đ'}">0 đ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter -->
+      <form th:action="@{/payments}" method="get" class="d-flex gap-2 mb-3">
+        <select name="type" class="form-select" style="max-width:200px;">
+          <option value="">Tất cả loại</option>
+          <option th:each="t : ${paymentTypes}" th:value="${t.name()}"
+                  th:text="${t.name()}" th:selected="${t.name()==typeFilter}"></option>
+        </select>
+        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-funnel"></i> Lọc</button>
+      </form>
+
+      <!-- Table -->
+      <div class="data-card">
+        <table class="data-table">
+          <thead>
+          <tr>
+            <th>#</th><th>Đặt xe / Thuê xe</th><th>Ngày TT</th>
+            <th>Số tiền</th><th>Phương thức</th><th>Loại</th><th>Mã tham chiếu</th><th>Ghi chú</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="p : ${payments}">
+            <td class="fw-600" th:text="${p.paymentId}"></td>
+            <td>
+              <span th:if="${p.reservation != null}"
+                    th:text="'Đặt xe #' + ${p.reservation.reservationId}"></span>
+              <span th:if="${p.rental != null}"
+                    th:text="'Thuê xe #' + ${p.rental.rentalId}"></span>
+            </td>
+            <td th:text="${#temporals.format(p.paymentDate, 'dd/MM/yyyy HH:mm')}"></td>
+            <td class="fw-600" style="color:var(--primary);"
+                th:text="${#numbers.formatDecimal(p.amount,1,'COMMA',0,'POINT') + ' đ'}"></td>
+            <td th:text="${p.paymentMethod}"></td>
+            <td>
+              <span th:class="${p.paymentType.name()=='Charge' ? 'status-badge status-active' :
+                               p.paymentType.name()=='Deposit' ? 'status-badge status-confirmed' :
+                               'status-badge status-cancelled'}"
+                    th:text="${p.paymentType}"></span>
+            </td>
+            <td th:text="${p.referenceNo ?: '—'}"></td>
+            <td th:text="${p.notes ?: '—'}"></td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(payments)}">
+            <td colspan="8" class="text-center text-muted py-4">Chưa có dữ liệu thanh toán</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal: Add Payment -->
+<div class="modal fade" id="modalAddPayment" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-700"><i class="bi bi-credit-card me-2 text-primary"></i>Thêm thanh toán</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form th:action="@{/payments/create}" method="post">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-600">Đặt xe (chọn 1 trong 2)</label>
+            <select name="reservationId" class="form-select">
+              <option value="">-- Không --</option>
+              <option th:each="r : ${reservations}" th:value="${r.reservationId}"
+                      th:text="'Đặt xe #' + ${r.reservationId} + ' — ' + ${r.customer.firstName + ' ' + r.customer.lastName}"></option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Thuê xe</label>
+            <select name="rentalId" class="form-select">
+              <option value="">-- Không --</option>
+              <option th:each="r : ${rentals}" th:value="${r.rentalId}"
+                      th:text="'Thuê xe #' + ${r.rentalId}"></option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Số tiền (đ) <span class="text-danger">*</span></label>
+            <input type="number" name="amount" class="form-control" required min="1" step="1000"/>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label fw-600">Phương thức <span class="text-danger">*</span></label>
+              <select name="paymentMethod" class="form-select" required>
+                <option th:each="m : ${paymentMethods}" th:value="${m.name()}" th:text="${m.name()}"></option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-600">Loại <span class="text-danger">*</span></label>
+              <select name="paymentType" class="form-select" required>
+                <option th:each="t : ${paymentTypes}" th:value="${t.name()}" th:text="${t.name()}"></option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Mã tham chiếu</label>
+            <input type="text" name="referenceNo" class="form-control" placeholder="Mã giao dịch ngân hàng..."/>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Ghi chú</label>
+            <textarea name="notes" class="form-control" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

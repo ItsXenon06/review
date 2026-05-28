@@ -393,3 +393,33 @@ SELECT v.VehicleID, 'Repair',
 FROM Vehicle v WHERE v.LicensePlate = '51C-56789'
 AND NOT EXISTS (SELECT 1 FROM MaintenanceRecord m WHERE m.VehicleID = v.VehicleID AND m.ServiceDate = '2025-04-05');
 GO
+-----
+--PATCH NUMBER 2 WHY IS THIS HAPPENING TO ME, I JUST WANNA SLEEP :))
+-- ============================================================
+-- PATCH v1.1 — Fix column types for JPA Instant mapping
+-- ============================================================
+
+-- Verify Payment.PaymentDate accepts DATETIME2 with offset (Instant maps to DATETIME2)
+-- SQL Server DATETIME2 is compatible with Java Instant via the MSSQL JDBC driver.
+-- No schema change needed if using mssql-jdbc 12.x.
+
+-- Add missing index for payments by date (for monthly revenue query performance)
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Payment_Date' AND object_id = OBJECT_ID('Payment'))
+    CREATE INDEX IX_Payment_Date ON Payment(PaymentDate);
+
+-- Add missing index for reservation stats
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Reservation_Status2' AND object_id = OBJECT_ID('Reservation'))
+    CREATE INDEX IX_Reservation_Status2 ON Reservation(Status, CreatedAt);
+
+-- Ensure quyen table has proper index
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Quyen_VaiTro' AND object_id = OBJECT_ID('quyen'))
+    CREATE INDEX IX_Quyen_VaiTro ON quyen(vai_tro_id, danh_muc_chuc_nang);
+
+-- Seed additional roles for testing
+INSERT INTO vai_tro (ten_vai_tro, mo_ta, la_toan_quyen)
+SELECT N'Nhân viên', N'Nhân viên thông thường', 0
+WHERE NOT EXISTS (SELECT 1 FROM vai_tro WHERE ten_vai_tro = N'Nhân viên');
+
+INSERT INTO vai_tro (ten_vai_tro, mo_ta, la_toan_quyen)
+SELECT N'Khách hàng', N'Khách hàng thuê xe', 0
+WHERE NOT EXISTS (SELECT 1 FROM vai_tro WHERE ten_vai_tro = N'Khách hàng');

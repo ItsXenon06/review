@@ -37,7 +37,7 @@ public class DashboardController {
 
         // 2. Xử lý logic hiển thị Bảo dưỡng (đã sửa lỗi trùng lặp)
         List<MaintenanceDTO> maintenanceList = maintenanceService.findUpcomingMaintenance();
-        model.addAttribute("upcomingMaintenances", maintenanceList);
+        model.addAttribute("maintenanceList", maintenanceList);
 
         return "main-dashboard";
     }

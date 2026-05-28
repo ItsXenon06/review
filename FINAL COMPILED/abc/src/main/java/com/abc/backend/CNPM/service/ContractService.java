@@ -5,23 +5,30 @@ import com.abc.backend.CNPM.repository.ContractRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime; // Đảm bảo đã import cái này
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ContractService {
 
     @Autowired
-private ContractRepository contractRepository;
+    private ContractRepository contractRepository;
 
+    // ONLY expiring within 7 days OR already expired
     public List<Contract> findAllExpiring() {
-        return contractRepository.findAll();
+        LocalDateTime threshold = LocalDateTime.now().plusDays(7);
+
+        return contractRepository.findAll().stream()
+                .filter(c -> c.getEndDate() != null && c.getEndDate().isBefore(threshold))
+                .sorted(Comparator.comparing(Contract::getEndDate))
+                .collect(Collectors.toList());
     }
 
-    // Phương thức kiểm tra và gửi thông báo
+    // Check single contract expiry status
     public String checkAndSendNotification(Integer contractId) {
-        // Bây giờ findById sẽ nhận vào Integer và hoạt động bình thường
         Optional<Contract> contractOpt = contractRepository.findById(contractId);
 
         if (contractOpt.isEmpty()) {
@@ -33,8 +40,8 @@ private ContractRepository contractRepository;
 
         if (contract.getEndDate() != null && contract.getEndDate().isBefore(now)) {
             return "SUCCESS";
-        } else {
-            return "NOT_EXPIRED";
         }
+
+        return "NOT_EXPIRED";
     }
 }

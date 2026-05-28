@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="topbar(title)" class="topbar">
+  <span class="fw-700 fs-6" th:text="${title}">Tiêu đề</span>
+  <div class="topbar-spacer"></div>
+  <div class="notif-btn">
+    <i class="bi bi-bell"></i>
+    <span class="notif-badge">3</span>
+  </div>
+  <div class="user-pill">
+    <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
+    <div>
+      <div class="fw-600" style="font-size:13px;"
+           th:text="${#authentication?.name ?: 'Admin'}">Admin</div>
+      <div style="font-size:11px;color:var(--text-muted);">Quản trị viên</div>
+    </div>
+  </div>
+</header>
+</body>
+</html>

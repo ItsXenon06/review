@@ -1,12 +1,10 @@
 package com.abc.backend.CNPM.model;
-import jakarta.persistence.Column;
 import jakarta.persistence.*;
 import lombok.Data;
-import jakarta.persistence.Entity;
+
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "Contract")
@@ -56,5 +54,7 @@ public class Contract {
         java.time.LocalDate end = this.endDate.toLocalDate();
         return end.isEqual(today);
     }
-
+    public Integer getContractID() {
+    return this.contractId;
+}
 }

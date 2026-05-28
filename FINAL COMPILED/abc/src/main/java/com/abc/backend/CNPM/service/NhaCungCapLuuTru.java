@@ -18,5 +18,5 @@ public interface NhaCungCapLuuTru {
 
     Vehicle luuXe(Vehicle xe);
 
-    void xoaXe(Long id);
+    void xoaXe(Integer id);
 }

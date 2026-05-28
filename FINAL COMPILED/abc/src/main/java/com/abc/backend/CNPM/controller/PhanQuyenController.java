@@ -1,11 +1,18 @@
 package com.abc.backend.CNPM.controller;
 
-
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.Authentication;
+import java.io.Serializable;
 import com.abc.backend.CNPM.dto.request.PhanQuyenRq;
 import com.abc.backend.CNPM.dto.response.PhanQuyenRp;
 import com.abc.backend.CNPM.service.PhanQuyenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -15,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@EnableMethodSecurity(prePostEnabled = true)
 @RequestMapping("/api/phan-quyen")
 @RequiredArgsConstructor
 public class PhanQuyenController {
@@ -163,4 +171,29 @@ public class PhanQuyenController {
         boolean coQuyen = phanQuyenService.kiemTraQuyen(nguoiDungId, danhMucChucNang, loaiQuyen);
         return ResponseEntity.ok(coQuyen);
     }
+    @Bean
+public PermissionEvaluator permissionEvaluator() {
+    // Stub — replace with real PhanQuyenService call in production
+    return new PermissionEvaluator() {
+        @Override
+        public boolean hasPermission(Authentication auth, Object target, Object permission) {
+            if (auth == null) return false;
+            // Admin always has all permissions
+            return auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_Admin"));
+        }
+        @Override
+        public boolean hasPermission(Authentication auth, Serializable targetId,
+                                     String targetType, Object permission) {
+            return hasPermission(auth, targetId, permission);
+        }
+    };
+}
+
+@Bean
+public MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+    DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+    handler.setPermissionEvaluator(permissionEvaluator());
+    return handler;
+}
 }

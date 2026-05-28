@@ -1,175 +1,35 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thống Kê - Quản Lý Thuê Xe Tự Lái</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-    <style>
-        :root {
-            --sidebar-width: 240px;
-            --primary: #1a73e8;
-            --bg: #f5f7fa;
-        }
-
-        * { box-sizing: border-box; }
-        body { background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; }
-
-        /* ── SIDEBAR ── */
-        .sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            background: #fff;
-            border-right: 1px solid #e8ecf0;
-            position: fixed;
-            top: 0; left: 0;
-            display: flex;
-            flex-direction: column;
-            z-index: 100;
-        }
-        .sidebar-brand {
-            display: flex; align-items: center; gap: 10px;
-            padding: 18px 20px;
-            border-bottom: 1px solid #e8ecf0;
-            font-weight: 700; font-size: 13px; color: #1a73e8;
-        }
-        .sidebar-brand i { font-size: 22px; }
-        .sidebar-menu { flex: 1; padding: 12px 0; overflow-y: auto; }
-        .sidebar-menu a {
-            display: flex; align-items: center; gap: 12px;
-            padding: 10px 20px;
-            color: #4a5568; text-decoration: none;
-            font-size: 14px; border-radius: 0;
-            transition: background .15s, color .15s;
-        }
-        .sidebar-menu a:hover { background: #f0f4ff; color: var(--primary); }
-        .sidebar-menu a.active {
-            background: #e8f0fe; color: var(--primary);
-            font-weight: 600; border-right: 3px solid var(--primary);
-        }
-        .sidebar-menu a i { font-size: 16px; width: 20px; text-align: center; }
-        .sidebar-support {
-            margin: 12px; padding: 14px; background: #f0f7ff;
-            border-radius: 10px; font-size: 12px; color: #555;
-        }
-        .sidebar-support strong { color: var(--primary); font-size: 14px; }
-
-        /* ── MAIN ── */
-        .main-content { margin-left: var(--sidebar-width); min-height: 100vh; }
-        .topbar {
-            background: #fff; border-bottom: 1px solid #e8ecf0;
-            padding: 12px 24px;
-            display: flex; align-items: center; justify-content: space-between;
-            position: sticky; top: 0; z-index: 50;
-        }
-        .topbar-right { display: flex; align-items: center; gap: 16px; }
-        .topbar-right .avatar {
-            width: 36px; height: 36px; background: #e8f0fe;
-            border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; color: var(--primary); font-weight: 700;
-        }
-
-        .page-body { padding: 24px; }
-
-        /* ── STAT CARDS ── */
-        .stat-card {
-            background: #fff; border-radius: 12px;
-            padding: 20px; border: 1px solid #e8ecf0;
-            display: flex; align-items: center; gap: 16px;
-        }
-        .stat-icon {
-            width: 48px; height: 48px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 22px; flex-shrink: 0;
-        }
-        .stat-card .value { font-size: 22px; font-weight: 700; color: #1a202c; line-height: 1; }
-        .stat-card .label { font-size: 12px; color: #718096; margin-bottom: 4px; }
-        .stat-card .trend { font-size: 12px; margin-top: 4px; }
-        .trend.up { color: #22c55e; }
-        .trend.down { color: #ef4444; }
-
-        /* ── CHART CARDS ── */
-        .chart-card {
-            background: #fff; border-radius: 12px;
-            padding: 20px; border: 1px solid #e8ecf0;
-            height: 100%;
-        }
-        .chart-card h6 { font-weight: 600; color: #1a202c; margin-bottom: 16px; font-size: 14px; }
-
-        /* ── TOP 5 LIST ── */
-        .top-vehicle-item {
-            display: flex; align-items: center; gap: 12px;
-            padding: 8px 0; border-bottom: 1px solid #f0f0f0;
-        }
-        .top-vehicle-item:last-child { border-bottom: none; }
-        .top-vehicle-item .car-img {
-            width: 56px; height: 36px; background: #f5f7fa;
-            border-radius: 6px; display: flex; align-items: center;
-            justify-content: center; color: #aaa; font-size: 20px;
-        }
-        .bar-track { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
-        .bar-fill { height: 100%; background: var(--primary); border-radius: 4px; }
-
-        /* ── LEGEND ── */
-        .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thống Kê - Quản Lý Thuê Xe Tự Lái</title>
+  <th:block th:replace="~{fragments/shared-styles :: styles}"></th:block>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <style>
+    .stat-card { background:#fff; border-radius:12px; padding:20px; border:1px solid var(--border);
+                 display:flex; align-items:center; gap:16px; }
+    .stat-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center;
+                 justify-content:center; font-size:22px; flex-shrink:0; }
+    .chart-card { background:#fff; border-radius:12px; padding:20px; border:1px solid var(--border); height:100%; }
+    .chart-card h6 { font-weight:600; color:var(--text); margin-bottom:16px; font-size:14px; }
+    .top-vehicle-item { display:flex; align-items:center; gap:12px; padding:8px 0;
+                        border-bottom:1px solid #f0f0f0; }
+    .top-vehicle-item:last-child { border-bottom:none; }
+    .bar-track { flex:1; height:8px; background:#f0f0f0; border-radius:4px; overflow:hidden; }
+    .bar-fill  { height:100%; background:var(--primary); border-radius:4px; }
+    .legend-dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
+  </style>
 </head>
 <body>
-
-<!-- ══════════════ SIDEBAR ══════════════ -->
-<aside class="sidebar">
-    <div class="sidebar-brand">
-        <i class="bi bi-car-front-fill"></i>
-        QUẢN LÝ THUÊ XE TỰ LÁI
-    </div>
-    <nav class="sidebar-menu">
-        <a href="#"><i class="bi bi-grid-1x2"></i> Tổng quan</a>
-        <a href="#"><i class="bi bi-archive"></i> Lưu trữ</a>
-        <a href="#"><i class="bi bi-search"></i> Tra cứu</a>
-        <a href="/statistic" class="active"><i class="bi bi-bar-chart-line"></i> Thống kê</a>
-        <a href="#"><i class="bi bi-calculator"></i> Tính toán</a>
-        <a href="#"><i class="bi bi-file-text"></i> Hợp đồng</a>
-        <a href="#"><i class="bi bi-people"></i> Khách hàng</a>
-        <a href="#"><i class="bi bi-car-front"></i> Xe</a>
-        <a href="#"><i class="bi bi-bell"></i> Thông báo</a>
-        <a href="#"><i class="bi bi-shield-check"></i> Phân quyền</a>
-        <a href="#"><i class="bi bi-gear"></i> Cài đặt</a>
-        <a href="#"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
-    </nav>
-    <div class="sidebar-support">
-        <div class="d-flex align-items-center gap-2 mb-1">
-            <i class="bi bi-headset fs-5 text-primary"></i>
-            <span>Hỗ trợ 24/7</span>
-        </div>
-        <strong>1900 1234 567</strong>
-    </div>
-</aside>
-
-<!-- ══════════════ MAIN ══════════════ -->
-<div class="main-content">
-
-    <!-- TOPBAR -->
-    <div class="topbar">
-        <button class="btn btn-sm btn-light border-0"><i class="bi bi-list fs-5"></i></button>
-        <div class="topbar-right">
-            <button class="btn btn-sm btn-light border-0 position-relative">
-                <i class="bi bi-bell fs-5"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:9px">3</span>
-            </button>
-            <div class="d-flex align-items-center gap-2">
-                <div class="avatar">A</div>
-                <div>
-                    <div style="font-size:13px;font-weight:600">Admin</div>
-                    <div style="font-size:11px;color:#718096">Quản trị viên</div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="layout">
+  <th:block th:replace="~{fragments/sidebar :: sidebar('statistic')}"></th:block>
+  <div class="main-content main-wrap">
+    <th:block th:replace="~{fragments/topbar :: topbar('Thống kê')}"></th:block>
+    
 
     <!-- PAGE BODY -->
-    <div class="page-body">
+    <div class="page-body page-content">
 
         <!-- Header -->
         <div class="d-flex align-items-start justify-content-between mb-4">
@@ -417,6 +277,11 @@
             <span><span class="legend-dot" style="background:${rColors[i]}"></span> ${rViLabel[l]||l}</span>
             <span>${rCounts[i]} đơn (${pct}%)</span></div>`;
     });
-</script>
+    </script>
+
+    </div><!-- page-body -->
+  </div><!-- main-wrap -->
+</div><!-- layout -->
+
 </body>
 </html>

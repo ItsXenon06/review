@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lưu trữ - Quản lý thuê xe</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <th:block th:replace="~{fragments/shared-styles :: styles}"></th:block>
+</head>
+<body>
+<div class="layout">
+  <th:block th:replace="~{fragments/sidebar :: sidebar('storage')}"></th:block>
+  <div class="main-wrap">
+    <th:block th:replace="~{fragments/topbar :: topbar('Lưu trữ')}"></th:block>
+    <main class="page-content">
+      <div class="page-header mb-4">
+        <h1 class="page-title">Lưu trữ dữ liệu</h1>
+        <p class="page-subtitle text-muted">Quản lý xe, khách hàng và đặt xe trong hệ thống.</p>
+      </div>
+
+      <!-- Flash messages -->
+      <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle me-2"></i><span th:text="${successMsg}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${errorMsg}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <ul class="nav nav-tabs border-0" style="gap:4px;">
+          <li class="nav-item">
+            <a class="nav-link px-4 py-2 rounded-top-3 fw-600"
+               th:classappend="${tab=='vehicle'}?'active bg-primary text-white border-primary':'text-muted'"
+               th:href="@{/storage(tab='vehicle')}">
+              <i class="bi bi-car-front me-1"></i> Xe
+              <span class="badge bg-white text-primary ms-1" th:text="${#lists.size(vehicles)}">0</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-4 py-2 rounded-top-3 fw-600"
+               th:classappend="${tab=='customer'}?'active bg-primary text-white border-primary':'text-muted'"
+               th:href="@{/storage(tab='customer')}">
+              <i class="bi bi-people me-1"></i> Khách hàng
+              <span class="badge bg-white text-primary ms-1" th:text="${#lists.size(customers)}">0</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-4 py-2 rounded-top-3 fw-600"
+               th:classappend="${tab=='reservation'}?'active bg-primary text-white border-primary':'text-muted'"
+               th:href="@{/storage(tab='reservation')}">
+              <i class="bi bi-calendar-check me-1"></i> Đặt xe
+              <span class="badge bg-white text-primary ms-1" th:text="${#lists.size(reservations)}">0</span>
+            </a>
+          </li>
+        </ul>
+        <div>
+          <button th:if="${tab=='vehicle'}" class="btn btn-primary d-flex align-items-center gap-2"
+                  data-bs-toggle="modal" data-bs-target="#modalAddVehicle">
+            <i class="bi bi-plus-lg"></i> Thêm xe
+          </button>
+          <button th:if="${tab=='customer'}" class="btn btn-primary d-flex align-items-center gap-2"
+                  data-bs-toggle="modal" data-bs-target="#modalAddCustomer">
+            <i class="bi bi-plus-lg"></i> Thêm khách hàng
+          </button>
+          <button th:if="${tab=='reservation'}" class="btn btn-primary d-flex align-items-center gap-2"
+                  data-bs-toggle="modal" data-bs-target="#modalAddReservation">
+            <i class="bi bi-plus-lg"></i> Tạo đặt xe
+          </button>
+        </div>
+      </div>
+
+      <!-- Search bar -->
+      <form th:action="@{/storage}" method="get" class="mb-3 d-flex gap-2">
+        <input type="hidden" name="tab" th:value="${tab}"/>
+        <input type="text" name="q" th:value="${q}" class="form-control"
+               style="max-width:320px;" placeholder="Tìm kiếm..."/>
+        <select name="status" class="form-select" style="max-width:160px;"
+                th:if="${tab=='vehicle'}">
+          <option value="">Tất cả trạng thái</option>
+          <option th:each="s : ${vehicleStatuses}" th:value="${s.name()}"
+                  th:text="${s.name()}" th:selected="${s.name()==statusFilter}"></option>
+        </select>
+        <button type="submit" class="btn btn-outline-primary">
+          <i class="bi bi-search"></i> Tìm
+        </button>
+      </form>
+
+      <!-- ── VEHICLE TABLE ── -->
+      <div th:if="${tab=='vehicle'}" class="data-card">
+        <table class="data-table">
+          <thead>
+          <tr>
+            <th>Biển số</th><th>Xe</th><th>Năm</th><th>Danh mục</th>
+            <th>Nhiên liệu</th><th>Hộp số</th><th>Km</th><th>Trạng thái</th><th>Thao tác</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="v : ${vehicles}">
+            <td class="fw-600" th:text="${v.licensePlate}"></td>
+            <td th:text="${v.make + ' ' + v.model}"></td>
+            <td th:text="${v.year}"></td>
+            <td th:text="${v.category.categoryName}"></td>
+            <td th:text="${v.fuelType}"></td>
+            <td th:text="${v.transmissionType}"></td>
+            <td th:text="${#numbers.formatInteger(v.currentMileage,1,'COMMA') + ' km'}"></td>
+            <td>
+              <span th:class="${'status-badge status-' + v.status.name().toLowerCase()}"
+                    th:text="${v.status.name()}"></span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-1"
+                      th:onclick="|openEditVehicle(${v.vehicleId})|">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <form th:action="@{/storage/vehicles/{id}/delete(id=${v.vehicleId})}"
+                    method="post" style="display:inline"
+                    onsubmit="return confirm('Xóa xe này?')">
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(vehicles)}">
+            <td colspan="9" class="text-center text-muted py-4">Không có dữ liệu</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── CUSTOMER TABLE ── -->
+      <div th:if="${tab=='customer'}" class="data-card">
+        <table class="data-table">
+          <thead>
+          <tr>
+            <th>Họ tên</th><th>Email</th><th>SĐT</th><th>Số GPLX</th>
+            <th>Hạn GPLX</th><th>Blacklist</th><th>Thao tác</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="c : ${customers}">
+            <td class="fw-600" th:text="${c.firstName + ' ' + c.lastName}"></td>
+            <td th:text="${c.email}"></td>
+            <td th:text="${c.phoneNumber}"></td>
+            <td th:text="${c.driverLicenseNo}"></td>
+            <td th:text="${c.licenseExpiry}"></td>
+            <td>
+              <span th:if="${c.blacklistFlag}" class="badge bg-danger">Blacklist</span>
+              <span th:unless="${c.blacklistFlag}" class="badge bg-success">OK</span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-1"
+                      th:onclick="|openEditCustomer(${c.customerId})|">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <form th:action="@{/storage/customers/{id}/delete(id=${c.customerId})}"
+                    method="post" style="display:inline"
+                    onsubmit="return confirm('Xóa khách hàng này?')">
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(customers)}">
+            <td colspan="7" class="text-center text-muted py-4">Không có dữ liệu</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── RESERVATION TABLE ── -->
+      <div th:if="${tab=='reservation'}" class="data-card">
+        <table class="data-table">
+          <thead>
+          <tr>
+            <th>#</th><th>Khách hàng</th><th>Xe</th><th>Nhận xe</th>
+            <th>Trả xe</th><th>Tổng ngày</th><th>Tổng tiền</th><th>Trạng thái</th><th>Thao tác</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="r : ${reservations}">
+            <td class="fw-600" th:text="'#' + ${r.reservationId}"></td>
+            <td th:text="${r.customer.firstName + ' ' + r.customer.lastName}"></td>
+            <td th:text="${r.vehicle.licensePlate}"></td>
+            <td th:text="${r.pickupDate}"></td>
+            <td th:text="${r.returnDate}"></td>
+            <td th:text="${r.totalDays + ' ngày'}"></td>
+            <td th:text="${#numbers.formatDecimal(r.estimatedTotal,1,'COMMA',0,'POINT') + ' đ'}"></td>
+            <td>
+              <span th:class="${'status-badge status-' + r.status.name().toLowerCase()}"
+                    th:text="${r.status.name()}"></span>
+            </td>
+            <td>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                        data-bs-toggle="dropdown">Cập nhật</button>
+                <ul class="dropdown-menu">
+                  <li th:each="s : ${T(com.abc.backend.CNPM.model.enums.ReservationStatus).values()}">
+                    <form th:action="@{/storage/reservations/{id}/status(id=${r.reservationId})}"
+                          method="post">
+                      <input type="hidden" name="status" th:value="${s.name()}"/>
+                      <button class="dropdown-item" type="submit" th:text="${s.name()}"></button>
+                    </form>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(reservations)}">
+            <td colspan="9" class="text-center text-muted py-4">Không có dữ liệu</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal: Add Vehicle -->
+<div class="modal fade" id="modalAddVehicle" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-700"><i class="bi bi-car-front me-2 text-primary"></i>Thêm xe mới</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form th:action="@{/storage/vehicles/create}" method="post">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-600">Biển số <span class="text-danger">*</span></label>
+              <input type="text" name="licensePlate" class="form-control" required placeholder="51A-12345"/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">VIN <span class="text-danger">*</span></label>
+              <input type="text" name="vin" class="form-control" required placeholder="17 ký tự"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Hãng <span class="text-danger">*</span></label>
+              <input type="text" name="make" class="form-control" required placeholder="Toyota"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Mẫu xe <span class="text-danger">*</span></label>
+              <input type="text" name="model" class="form-control" required placeholder="Vios"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Năm sản xuất</label>
+              <input type="number" name="year" class="form-control" value="2023" min="2000" max="2030"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Danh mục <span class="text-danger">*</span></label>
+              <select name="categoryId" class="form-select" required>
+                <option th:each="cat : ${categories}" th:value="${cat.categoryId}"
+                        th:text="${cat.categoryName + ' — ' + #numbers.formatDecimal(cat.baseDailyRate,1,'COMMA',0,'POINT') + 'đ/ngày'}">
+                </option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Nhiên liệu</label>
+              <select name="fuelType" class="form-select">
+                <option th:each="f : ${fuelTypes}" th:value="${f.name()}" th:text="${f.name()}"></option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Hộp số</label>
+              <select name="transmissionType" class="form-select">
+                <option th:each="t : ${transmissionTypes}" th:value="${t.name()}" th:text="${t.name()}"></option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Số chỗ</label>
+              <input type="number" name="seatingCapacity" class="form-control" value="5" min="2" max="45"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Km hiện tại</label>
+              <input type="number" name="currentMileage" class="form-control" value="0" min="0"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Màu sắc</label>
+              <input type="text" name="color" class="form-control" placeholder="Trắng"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Trạng thái</label>
+              <select name="status" class="form-select">
+                <option th:each="s : ${vehicleStatuses}" th:value="${s.name()}" th:text="${s.name()}"></option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-600">Ghi chú</label>
+              <textarea name="notes" class="form-control" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Lưu xe</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add Customer -->
+<div class="modal fade" id="modalAddCustomer" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-700"><i class="bi bi-person-plus me-2 text-primary"></i>Thêm khách hàng</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form th:action="@{/storage/customers/create}" method="post">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-600">Họ <span class="text-danger">*</span></label>
+              <input type="text" name="firstName" class="form-control" required/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Tên <span class="text-danger">*</span></label>
+              <input type="text" name="lastName" class="form-control" required/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Email <span class="text-danger">*</span></label>
+              <input type="email" name="email" class="form-control" required/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Số điện thoại</label>
+              <input type="text" name="phoneNumber" class="form-control"/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Số GPLX <span class="text-danger">*</span></label>
+              <input type="text" name="driverLicenseNo" class="form-control" required/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Hạn GPLX <span class="text-danger">*</span></label>
+              <input type="date" name="licenseExpiry" class="form-control" required/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Ngày sinh</label>
+              <input type="date" name="dateOfBirth" class="form-control"/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Quốc gia cấp GPLX</label>
+              <input type="text" name="licenseCountry" class="form-control" value="VN"/>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add Reservation -->
+<div class="modal fade" id="modalAddReservation" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-700"><i class="bi bi-calendar-plus me-2 text-primary"></i>Tạo đặt xe</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form th:action="@{/storage/reservations/create}" method="post">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-600">Khách hàng <span class="text-danger">*</span></label>
+              <select name="customerId" class="form-select" required>
+                <option value="">-- Chọn khách hàng --</option>
+                <option th:each="c : ${customers}" th:value="${c.customerId}"
+                        th:text="${c.firstName + ' ' + c.lastName + ' — ' + c.email}"></option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Xe <span class="text-danger">*</span></label>
+              <select name="vehicleId" class="form-select" required>
+                <option value="">-- Chọn xe --</option>
+                <option th:each="v : ${vehicles}" th:value="${v.vehicleId}"
+                        th:text="${v.make + ' ' + v.model + ' — ' + v.licensePlate}"></option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Ngày nhận xe <span class="text-danger">*</span></label>
+              <input type="date" name="pickupDate" class="form-control" required/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Ngày trả xe <span class="text-danger">*</span></label>
+              <input type="date" name="returnDate" class="form-control" required/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Giá thuê/ngày (đ) <span class="text-danger">*</span></label>
+              <input type="number" name="quotedDailyRate" class="form-control" required min="0"/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Ước tính tổng (đ) <span class="text-danger">*</span></label>
+              <input type="number" name="estimatedTotal" class="form-control" required min="0"/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Bảo hiểm</label>
+              <select name="insurancePlanId" class="form-select">
+                <option value="">Không có</option>
+<option value="">Không có</option>
+
+<option th:each="p : ${insurancePlans}"
+        th:value="${p.planId}"
+        th:text="${p.planName + ' (+' + #numbers.formatDecimal(p.dailyPremium,1,'COMMA',0,'POINT') + 'đ/ngày)'}">
+</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Trạng thái</label>
+              <select name="status" class="form-select">
+                <option value="Pending">Pending</option>
+                <option value="Confirmed">Confirmed</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-600">Yêu cầu đặc biệt</label>
+              <textarea name="specialRequests" class="form-control" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Tạo đặt xe</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

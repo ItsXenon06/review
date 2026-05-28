@@ -74,7 +74,7 @@ return khoXe.filterVehicles(thamSoTimKiem, thamSoHang, thamSoMoHinh, thamSoTrang
      * Xóa xe khỏi cơ sở dữ liệu theo ID
      */
     @Override
-    public void xoaXe(Integer id) {
+public void xoaXe(Integer id) {
     khoXe.deleteById(id);
 }
 }

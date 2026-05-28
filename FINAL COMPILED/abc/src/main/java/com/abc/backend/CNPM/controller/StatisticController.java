@@ -28,12 +28,14 @@ public class StatisticController {
                 ? String.format("%.1f", (rentedVehicles * 100.0 / totalVehicles))
                 : "0";
 
-        model.addAttribute("totalVehicles",    totalVehicles);
-        model.addAttribute("utilizationRate",  utilizationRate);
-        model.addAttribute("totalRevenue",     statisticService.getTotalRevenue());
-        model.addAttribute("totalBookings",    statisticService.getTotalBookings());
-        model.addAttribute("vehicleStats",     statisticService.getVehicleStatusStats());
-        model.addAttribute("monthlyRevenue",   statisticService.getMonthlyRevenueStats());
+        model.addAttribute("totalVehicles",   totalVehicles);
+        model.addAttribute("utilizationRate", utilizationRate);
+        model.addAttribute("totalRevenue",    statisticService.getTotalRevenue());
+        model.addAttribute("totalBookings",   statisticService.getTotalBookings());
+        model.addAttribute("vehicleStats",    statisticService.getVehicleStatusStats());
+        model.addAttribute("monthlyRevenue",  statisticService.getMonthlyRevenueStats());
+        model.addAttribute("topVehicles",     statisticService.getTopVehicles());
+        model.addAttribute("reservationStats",statisticService.getReservationStatusStats());
         return "statistic";
     }
 }
