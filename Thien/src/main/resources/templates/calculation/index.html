@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tính toán - Quản lý thuê xe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        :root{--primary:#1d6fe8;--primary-dark:#1558c0;--primary-light:#e8f0fd;--sidebar-bg:#0f172a;--sidebar-text:#94a3b8;--border:#e2e8f0;--bg:#f1f5f9;--card-bg:#fff;--text:#1e293b;--text-muted:#64748b;--success:#16a34a;--danger:#dc2626;}
+        *{box-sizing:border-box;}
+        body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--text);margin:0;}
+        .layout{display:flex;min-height:100vh;}
+        /* SIDEBAR */
+        .sidebar{width:260px;background:var(--sidebar-bg);color:var(--sidebar-text);display:flex;flex-direction:column;position:fixed;height:100vh;overflow-y:auto;z-index:100;}
+        .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.06);}
+        .sidebar-logo .logo-icon{width:36px;height:36px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;}
+        .sidebar-logo .logo-text{font-size:13px;font-weight:700;color:#fff;line-height:1.3;}
+        .sidebar nav{flex:1;padding:12px;}
+        .sidebar-link{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:8px;color:var(--sidebar-text);text-decoration:none;font-size:14px;font-weight:500;transition:background .15s,color .15s;margin-bottom:2px;}
+        .sidebar-link:hover{background:rgba(255,255,255,.06);color:#cbd5e1;}
+        .sidebar-link.active{background:var(--primary);color:#fff;}
+        .sidebar-link i{font-size:16px;width:20px;text-align:center;}
+        .sidebar-support{margin:12px;padding:14px 16px;background:rgba(29,111,232,.18);border-radius:12px;}
+        .sidebar-support p{font-size:12px;margin:0 0 2px;color:#94a3b8;}
+        .sidebar-support .phone{font-size:15px;font-weight:700;color:#60a5fa;}
+        /* MAIN */
+        .main-wrap{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+        .topbar{height:60px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:50;}
+        .topbar-spacer{flex:1;}
+        .notif-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;color:var(--text);font-size:17px;}
+        .notif-badge{position:absolute;top:3px;right:3px;width:16px;height:16px;background:var(--danger);color:#fff;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;}
+        .user-pill{display:flex;align-items:center;gap:8px;padding:5px 10px;border:1px solid var(--border);border-radius:40px;cursor:pointer;font-size:13px;}
+        .user-avatar{width:30px;height:30px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;}
+        /* PAGE */
+        .page-content{padding:28px;flex:1;}
+        .page-title{font-size:24px;font-weight:700;margin:0 0 4px;}
+        .page-subtitle{font-size:14px;color:var(--text-muted);margin:0 0 24px;}
+        /* TABS */
+        .calc-tabs{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:24px;}
+        .calc-tab-btn{display:flex;align-items:center;gap:7px;padding:10px 18px;font-size:14px;font-weight:500;background:none;border:none;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px;border-radius:6px 6px 0 0;transition:color .15s;}
+        .calc-tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);}
+        .calc-tab-btn:hover:not(.active){color:var(--text);background:var(--bg);}
+        /* CARD */
+        .card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;}
+        .section-title{font-size:15px;font-weight:700;color:var(--primary);margin:0 0 18px;}
+        /* FORM */
+        .form-label{font-size:13px;font-weight:600;margin-bottom:6px;}
+        .form-control,.form-select{font-size:14px;border:1px solid var(--border);border-radius:8px;padding:9px 12px;transition:border-color .15s;}
+        .form-control:focus,.form-select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(29,111,232,.12);}
+        .input-group-text{font-size:13px;border-color:var(--border);background:#f8fafc;}
+        .vehicle-thumb-placeholder{width:72px;height:48px;background:var(--primary-light);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:24px;flex-shrink:0;}
+        /* BUTTONS */
+        .btn-primary-custom{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px;cursor:pointer;text-decoration:none;transition:background .15s;}
+        .btn-primary-custom:hover{background:var(--primary-dark);color:#fff;}
+        .btn-outline-custom{background:#fff;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:11px 20px;font-size:14px;font-weight:500;display:inline-flex;align-items:center;gap:8px;cursor:pointer;text-decoration:none;transition:background .15s;}
+        .btn-outline-custom:hover{background:var(--bg);color:var(--text);}
+        /* RESULT TABLE */
+        .result-table{width:100%;border-collapse:collapse;}
+        .result-table th{background:#f8fafc;padding:11px 14px;font-size:13px;font-weight:600;text-align:left;border-bottom:1px solid var(--border);}
+        .result-table td{padding:11px 14px;font-size:14px;border-bottom:1px solid #f1f5f9;}
+        .result-table tbody tr:last-child td{border-bottom:none;}
+        .result-total td{font-weight:700;font-size:15px;color:var(--primary);border-top:2px solid var(--border)!important;}
+        /* SUMMARY */
+        .summary-card{position:sticky;top:80px;}
+        .summary-row{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;padding:7px 0;border-bottom:1px solid #f1f5f9;}
+        .summary-row:last-child{border-bottom:none;}
+        .summary-label{color:var(--text-muted);white-space:nowrap;margin-right:8px;}
+        .summary-value{font-weight:600;text-align:right;}
+        /* FIX: Tổng tiền luôn hiện, chỉ thay đổi nội dung */
+        .summary-total-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0 0;margin-top:10px;border-top:2px solid var(--border);}
+        .summary-total-label{font-size:15px;font-weight:700;color:var(--text);}
+        .summary-total-value{font-size:18px;font-weight:700;color:var(--primary);}
+        /* POLICY */
+        .policy-list{list-style:none;padding:0;margin:0;font-size:13px;color:var(--text-muted);}
+        .policy-list li{padding:4px 0;display:flex;gap:7px;}
+        .policy-list li::before{content:'●';color:var(--primary);flex-shrink:0;margin-top:1px;}
+        /* INFO NOTE */
+        .info-note{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:11px 14px;font-size:13px;color:#1e40af;display:flex;align-items:flex-start;gap:8px;}
+        .info-note i{font-size:15px;flex-shrink:0;margin-top:1px;}
+        .action-row{display:flex;gap:12px;margin-top:20px;}
+        .text-primary-c{color:var(--primary);}
+        .text-muted-c{color:var(--text-muted);font-size:13px;}
+        /* PRINT */
+        @media print{.sidebar,.topbar,.calc-tabs,.action-row,.btn-primary-custom,.btn-outline-custom,[type=submit]{display:none!important;}.main-wrap{margin-left:0;}.page-content{padding:0;}}
+    </style>
+</head>
+<body>
+<input type="hidden" id="activeTabInput" th:value="${activeTab}"/>
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon"><i class="bi bi-car-front-fill"></i></div>
+            <div class="logo-text">QUẢN LÝ<br>THUÊ XE TỰ LÁI</div>
+        </div>
+        <nav>
+            <a href="/dashboard"     class="sidebar-link"><i class="bi bi-grid-1x2"></i> Tổng quan</a>
+            <a href="/storage"       class="sidebar-link"><i class="bi bi-archive"></i> Lưu trữ</a>
+            <a href="/search"        class="sidebar-link"><i class="bi bi-search"></i> Tra cứu</a>
+            <a href="/statistics"    class="sidebar-link"><i class="bi bi-bar-chart-line"></i> Thống kê</a>
+            <a href="/calculation"   class="sidebar-link active"><i class="bi bi-calculator"></i> Tính toán</a>
+            <a href="/contracts"     class="sidebar-link"><i class="bi bi-file-earmark-text"></i> Hợp đồng</a>
+            <a href="/customers"     class="sidebar-link"><i class="bi bi-people"></i> Khách hàng</a>
+            <a href="/vehicles"      class="sidebar-link"><i class="bi bi-car-front"></i> Xe</a>
+            <a href="/payments"      class="sidebar-link"><i class="bi bi-credit-card"></i> Thanh toán</a>
+            <a href="/notifications" class="sidebar-link"><i class="bi bi-bell"></i> Thông báo</a>
+            <a href="/roles"         class="sidebar-link"><i class="bi bi-shield-check"></i> Phân quyền</a>
+            <a href="/settings"      class="sidebar-link"><i class="bi bi-gear"></i> Cài đặt</a>
+            <a href="/logout"        class="sidebar-link"><i class="bi bi-box-arrow-left"></i> Đăng xuất</a>
+        </nav>
+        <div class="sidebar-support">
+            <p><i class="bi bi-headset me-1"></i> Hỗ trợ 24/7</p>
+            <div class="phone">1900 1234 567</div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-wrap">
+        <header class="topbar">
+            <button class="btn-outline-custom" style="padding:7px 11px;border-radius:8px;">
+                <i class="bi bi-list" style="font-size:18px;"></i>
+            </button>
+            <div class="topbar-spacer"></div>
+            <div class="notif-btn">
+                <i class="bi bi-bell"></i><span class="notif-badge">3</span>
+            </div>
+            <div class="user-pill">
+                <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
+                <div>
+                    <div style="font-weight:600;font-size:13px;" th:text="${#authentication?.name ?: 'Admin'}">Admin</div>
+                    <div style="font-size:11px;color:var(--text-muted);">Quản trị viên</div>
+                </div>
+                <i class="bi bi-chevron-down" style="font-size:11px;color:var(--text-muted);"></i>
+            </div>
+        </header>
+
+        <main class="page-content">
+            <h1 class="page-title">Tính toán</h1>
+            <p class="page-subtitle">Tính toán chi phí thuê xe nhanh chóng và chính xác.</p>
+
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- TABS -->
+            <div class="calc-tabs">
+                <button class="calc-tab-btn" th:classappend="${activeTab=='rental'}?'active'" onclick="switchTab('rental')">
+                    <i class="bi bi-calculator"></i> Tính chi phí thuê xe
+                </button>
+                <button class="calc-tab-btn" th:classappend="${activeTab=='penalty'}?'active'" onclick="switchTab('penalty')">
+                    <i class="bi bi-exclamation-circle"></i> Tính phí phạt
+                </button>
+                <button class="calc-tab-btn" th:classappend="${activeTab=='depreciation'}?'active'" onclick="switchTab('depreciation')">
+                    <i class="bi bi-arrow-down-circle"></i> Tính khấu hao xe
+                </button>
+            </div>
+
+            <!-- ═══════════════════════════════════════════
+                 TAB 1 – CHI PHÍ THUÊ XE
+            ═══════════════════════════════════════════ -->
+            <div id="tab-rental">
+                <div class="row g-4">
+                    <!-- TRÁI: Form + Kết quả -->
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="section-title">1. Thông tin thuê xe</div>
+                            <form th:action="@{/calculation/rental}" th:object="${calcRequest}" method="post">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Chọn xe</label>
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <select th:field="*{vehicleId}" class="form-select"
+                                                    th:classappend="${#fields.hasErrors('vehicleId')}?'is-invalid'"
+                                                    onchange="onVehicleChange(this.value)" style="flex:1">
+                                                <option value="">-- Chọn xe --</option>
+                                                <option th:each="v : ${vehicles}"
+                                                        th:value="${v.vehicleId}"
+                                                        th:text="${v.make+' '+v.model+' '+v.year+' - '+v.licensePlate}">
+                                                </option>
+                                            </select>
+                                            <div class="vehicle-thumb-placeholder">
+                                                <i class="bi bi-car-front-fill"></i>
+                                            </div>
+                                        </div>
+                                        <div class="invalid-feedback" th:errors="*{vehicleId}"></div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Loại xe</label>
+                                        <input type="text" id="vehicleType" class="form-control" readonly
+                                               placeholder="Sedan 5 chỗ"
+                                               th:value="${calcResult?.vehicleType}"/>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Giá thuê theo ngày</label>
+                                        <div class="input-group">
+                                            <input type="text" id="dailyRateDisplay" class="form-control" readonly placeholder="0"
+                                                   th:value="${calcResult?.dailyRate!=null ? #numbers.formatDecimal(calcResult.dailyRate,1,'COMMA',0,'POINT') : ''}"/>
+                                            <span class="input-group-text">đ/ngày</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Ngày bắt đầu</label>
+                                        <input type="date" th:field="*{startDate}" class="form-control"
+                                               th:classappend="${#fields.hasErrors('startDate')}?'is-invalid'"/>
+                                        <div class="invalid-feedback" th:errors="*{startDate}"></div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Giờ bắt đầu</label>
+                                        <input type="time" th:field="*{startTime}" class="form-control"/>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Ngày kết thúc</label>
+                                        <input type="date" th:field="*{endDate}" class="form-control"
+                                               th:classappend="${#fields.hasErrors('endDate')}?'is-invalid'"/>
+                                        <div class="invalid-feedback" th:errors="*{endDate}"></div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Giờ kết thúc</label>
+                                        <input type="time" th:field="*{endTime}" class="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Số km dự kiến</label>
+                                        <div class="input-group">
+                                            <input type="number" th:field="*{estimatedKm}" class="form-control" min="0" placeholder="0"/>
+                                            <span class="input-group-text">km</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Hình thức thuê</label>
+                                        <select th:field="*{rentalType}" class="form-select">
+                                            <option value="SELF_DRIVE">Tự lái</option>
+                                            <option value="WITH_DRIVER">Có tài xế</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Bảo hiểm</label>
+                                        <select th:field="*{insurancePlanId}" class="form-select">
+                                            <option value="">Không chọn</option>
+                                            <option th:each="p : ${insurancePlans}"
+                                                    th:value="${p.planId}"
+                                                    th:text="${p.planName+' (+'+ #numbers.formatDecimal(p.dailyPremium,1,'COMMA',0,'POINT') +'đ/ngày)'}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Đặt cọc</label>
+                                        <div class="input-group">
+                                            <input type="number" th:field="*{deposit}" class="form-control" min="0" placeholder="0"/>
+                                            <span class="input-group-text">đ</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-primary-custom">
+                                    <i class="bi bi-calculator"></i> Tính toán
+                                </button>
+                                <div th:if="${#fields.hasErrors('calcRequest.*')}" class="alert alert-danger">
+                                    Vui lòng kiểm tra lại các trường dữ liệu:
+                                    <ul>
+                                        <li th:each="err : ${#fields.errors('calcRequest.*')}" th:text="${err}"></li>
+                                    </ul>
+                                </div>
+                                <a href="/calculation" class="btn-outline-custom ms-2">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Làm mới
+                                </a>
+                            </form>
+                        </div>
+
+                        <!-- Bảng kết quả: chỉ hiện khi có calcResult -->
+                        <div class="card" th:if="${calcResult != null}">
+                            <div class="section-title">2. Kết quả tính toán chi phí</div>
+                            <table class="result-table">
+                                <thead>
+                                <tr>
+                                    <th>Khoản mục</th>
+                                    <th>Chi tiết</th>
+                                    <th style="text-align:right">Thành tiền (đ)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>1. Tiền thuê xe (<span th:text="${calcResult.baseRentalCharge / calcResult.dailyRate}"></span> ngày)</td>
+                                    <td class="text-muted-c" th:text="${#numbers.formatDecimal(calcResult.dailyRate,1,'COMMA',0,'POINT')+' đ × '+(calcResult.baseRentalCharge / calcResult.dailyRate)+' ngày'}"></td>
+                                    <td style="text-align:right" th:text="${#numbers.formatDecimal(calcResult.baseRentalCharge,1,'COMMA',0,'POINT')}"></td>
+                                </tr>
+                                <tr>
+                                    <td>2. Phí vượt km (nếu có)</td>
+                                    <td class="text-muted-c" th:text="${calcResult.overKm+' km × '+#numbers.formatDecimal(calcResult.overKmFeePerKm,1,'COMMA',0,'POINT')+' đ/km'}"></td>
+                                    <td style="text-align:right" th:text="${#numbers.formatDecimal(calcResult.overKmCharge,1,'COMMA',0,'POINT')}"></td>
+                                </tr>
+                                <tr th:if="${calcResult.insuranceCharge.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                                    <td>3. Bảo hiểm vật chất</td>
+                                    <td class="text-muted-c" th:text="${(calcResult.baseRentalCharge / calcResult.dailyRate)+' ngày × '+#numbers.formatDecimal(calcResult.insuranceDailyRate,1,'COMMA',0,'POINT')+' đ'}"></td>
+                                    <td style="text-align:right" th:text="${#numbers.formatDecimal(calcResult.insuranceCharge,1,'COMMA',0,'POINT')}"></td>
+                                </tr>
+                                <tr>
+                                    <td th:text="${calcResult.insuranceCharge.compareTo(T(java.math.BigDecimal).ZERO)>0 ? '4. Phí vệ sinh xe' : '3. Phí vệ sinh xe'}"></td>
+                                    <td class="text-muted-c">1 lần</td>
+                                    <td style="text-align:right" th:text="${#numbers.formatDecimal(calcResult.cleaningFee,1,'COMMA',0,'POINT')}"></td>
+                                </tr>
+                                <tr>
+                                    <td th:text="${calcResult.insuranceCharge.compareTo(T(java.math.BigDecimal).ZERO)>0 ? '5. VAT (8%)' : '4. VAT (8%)'}"></td>
+                                    <td class="text-muted-c" th:text="|8% × ${#numbers.formatDecimal(calcResult?.subtotal ?: 0, 1, 'COMMA', 0, 'POINT')}|"></td>
+                                    <td style="text-align:right" th:text="${calcResult?.vatAmount != null ? #numbers.formatDecimal(calcResult.vatAmount, 1, 'COMMA', 0, 'POINT') : '0'}"></td>
+                                </tr>
+                                </tbody>
+                                <tfoot>
+                                <tr class="result-total">
+                                    <td colspan="2">Tổng cộng</td>
+                                    <td style="text-align:right" th:text="${#numbers.formatDecimal(calcResult.totalCharge,1,'COMMA',0,'POINT')+' đ'}"></td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                            <div class="info-note mt-3">
+                                <i class="bi bi-info-circle-fill"></i>
+                                Giá trên chỉ mang tính chất tham khảo. Chi phí thực tế có thể thay đổi theo chính sách công ty.
+                            </div>
+                            <div class="action-row">
+                                <button onclick="window.print()" class="btn-outline-custom">
+                                    <i class="bi bi-printer"></i> In dự toán
+                                </button>
+<!--                                <a th:href="@{/contracts/new}" class="btn-primary-custom">-->
+<!--                                    <i class="bi bi-file-earmark-plus"></i> Tạo hợp đồng-->
+<!--                                </a>-->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PHẢI: Summary — LUÔN HIỆN, không bao giờ bị ẩn -->
+                    <div class="col-lg-4">
+                        <div class="card summary-card">
+                            <div class="section-title">Tóm tắt đơn thuê</div>
+                            <div class="summary-row">
+                                <span class="summary-label">Xe</span>
+                                <!--
+                                  FIX CHÍNH: Dùng th:text với Elvis operator.
+                                  Khi calcResult null (chưa tính hoặc lỗi) → hiện '--'
+                                  Khi calcResult có dữ liệu → hiện tên xe từ server.
+                                  Card này KHÔNG có th:if nên KHÔNG bao giờ bị ẩn.
+                                -->
+                                <span class="summary-value" id="sum-vehicle"
+                                      th:text="${calcResult?.vehicleDisplayName ?: '--'}">--</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Biển số</span>
+                                <span class="summary-value" id="sum-plate"
+                                      th:text="${calcResult?.licensePlate ?: '--'}">--</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Thời gian thuê</span>
+                                <span class="summary-value"
+                                      th:text="${calcResult != null ? calcResult.totalDays + ' ngày' : '--'}">--</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Số km dự kiến</span>
+                                <span class="summary-value"
+                                      th:text="${calcResult != null ? calcResult.estimatedKm + ' km' : '--'}">--</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Hình thức thuê</span>
+                                <span class="summary-value" th:text="${calcResult?.rentalType == 'SELF_DRIVE' ? 'Tự lái' : (calcResult?.rentalType == 'WITH_DRIVER' ? 'Có tài xế' : '--')}">--</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Đặt cọc</span>
+                                <span class="summary-value"
+                                      th:text="${calcResult?.deposit != null ? #numbers.formatDecimal(calcResult.deposit,1,'COMMA',0,'POINT')+' đ' : '--'}">--</span>
+                            </div>
+                            <!-- Tổng tiền: LUÔN hiện dòng này, chỉ thay giá trị -->
+                            <div class="summary-total-row">
+                                <span class="summary-total-label">Tổng tiền</span>
+                                <span class="summary-total-value"
+                                      th:text="${calcResult?.totalCharge != null
+                                    ? #numbers.formatDecimal(calcResult.totalCharge,1,'COMMA',0,'POINT')+' đ'
+                                    : '--'}">--</span>
+                            </div>
+                            <a href="/calculation" class="btn-outline-custom w-100 justify-content-center mt-3">
+                                <i class="bi bi-arrow-counterclockwise"></i> Làm mới
+                            </a>
+                        </div>
+
+                        <!-- Chi tiết thời gian: chỉ hiện sau khi tính xong -->
+                        <div class="card" th:if="${calcResult != null}">
+                            <div class="section-title">Chi tiết tính theo thời gian</div>
+                            <div class="summary-row">
+                                <span class="summary-label">Thời gian thuê</span>
+                                <span class="summary-value" th:text="${calcResult.totalDays+' ngày '+calcResult.extraHours+' giờ'}"></span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Giá thuê theo ngày</span>
+                                <span class="summary-value" th:text="${#numbers.formatDecimal(calcResult.dailyRate,1,'COMMA',0,'POINT')+' đ'}"></span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Thành tiền</span>
+                                <span class="summary-value text-primary-c" th:text="${#numbers.formatDecimal(calcResult.baseRentalCharge,1,'COMMA',0,'POINT')+' đ'}"></span>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="section-title">Chính sách tính phí</div>
+                            <ul class="policy-list">
+                                <li>Giá thuê đã bao gồm bảo hiểm TNDS bắt buộc.</li>
+                                <li>Giới hạn km mỗi ngày: 200 km/ngày.</li>
+                                <li>Phí vượt km: 2,000 đ/km.</li>
+                                <li>Trả xe trễ: tính thêm 50% giá thuê của ngày tiếp theo.</li>
+                                <li>Hủy đơn trước 24h: miễn phí, sau 24h tính 30% tổng tiền thuê.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════
+                 TAB 2 – PHÍ PHẠT
+            ═══════════════════════════════════════════ -->
+            <div id="tab-penalty">
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="section-title">1. Thông tin trả xe</div>
+                            <form th:action="@{/calculation/penalty}" th:object="${penaltyRequest}" method="post">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Chọn xe</label>
+                                        <select th:field="*{vehicleId}" class="form-select"
+                                                th:classappend="${#fields.hasErrors('vehicleId')}?'is-invalid'">
+                                            <option value="">-- Chọn xe --</option>
+                                            <option th:each="v : ${vehicles}"
+                                                    th:value="${v.vehicleId}"
+                                                    th:text="${v.make+' '+v.model+' '+v.year+' - '+v.licensePlate}">
+                                            </option>
+                                        </select>
+                                        <div class="invalid-feedback" th:errors="*{vehicleId}"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Giá thuê theo ngày (đ)</label>
+                                        <input type="number" th:field="*{dailyRate}" class="form-control"
+                                               placeholder="700000" min="0"
+                                               th:classappend="${#fields.hasErrors('dailyRate')}?'is-invalid'"/>
+                                        <div class="invalid-feedback" th:errors="*{dailyRate}"></div>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Ngày trả dự kiến</label>
+                                        <input type="date" th:field="*{agreedReturnDate}" class="form-control"
+                                               th:classappend="${#fields.hasErrors('agreedReturnDate')}?'is-invalid'"/>
+                                        <div class="invalid-feedback" th:errors="*{agreedReturnDate}"></div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Giờ trả dự kiến</label>
+                                        <input type="time" th:field="*{agreedReturnTime}" class="form-control"/>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Ngày trả thực tế</label>
+                                        <input type="date" th:field="*{actualReturnDate}" class="form-control"
+                                               th:classappend="${#fields.hasErrors('actualReturnDate')}?'is-invalid'"/>
+                                        <div class="invalid-feedback" th:errors="*{actualReturnDate}"></div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Giờ trả thực tế</label>
+                                        <input type="time" th:field="*{actualReturnTime}" class="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Km thực tế</label>
+                                        <div class="input-group">
+                                            <input type="number" th:field="*{actualKm}" class="form-control" min="0" placeholder="0"/>
+                                            <span class="input-group-text">km</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Km được phép (theo HĐ)</label>
+                                        <div class="input-group">
+                                            <input type="number" th:field="*{includedKm}" class="form-control" min="0" placeholder="0"/>
+                                            <span class="input-group-text">km</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-primary-custom">
+                                    <i class="bi bi-calculator"></i> Tính phí phạt
+                                </button>
+                                <a href="/calculation" class="btn-outline-custom ms-2">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Làm mới
+                                </a>
+                            </form>
+                        </div>
+                        <div class="card" th:if="${penaltyResult != null}">
+                            <div class="section-title">2. Kết quả tính phí phạt</div>
+                            <table class="result-table">
+                                <thead><tr><th>Khoản mục</th><th>Chi tiết</th><th style="text-align:right">Thành tiền (đ)</th></tr></thead>
+                                <tbody>
+                                <tr>
+                                    <td>Phí trả xe trễ</td>
+                                    <td class="text-muted-c"
+                                        th:text="|${penaltyResult?.lateDays ?: 0} ngày × ${penaltyResult?.lateReturnFee != null and penaltyResult.lateDays > 0 ? #numbers.formatDecimal(penaltyResult.lateReturnFee / penaltyResult.lateDays, 1, 'COMMA', 0, 'POINT') : 0} đ/ngày (Tạm tính: ${penaltyResult?.lateHours ?: 0} giờ trễ)|">
+                                    </td>
+                                    <td style="text-align:right"
+                                        th:text="${penaltyResult?.lateReturnFee != null ? #numbers.formatDecimal(penaltyResult.lateReturnFee, 1, 'COMMA', 0, 'POINT') : '0'}">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Phí vượt km</td>
+                                    <td class="text-muted-c" th:text="${penaltyResult.overKm+' km × 2,000 đ/km'}"></td>
+                                    <td style="text-align:right" th:text="${#numbers.formatDecimal(penaltyResult.overKmFee,1,'COMMA',0,'POINT')}"></td>
+                                </tr>
+                                </tbody>
+                                <tfoot>
+                                <tr class="result-total">
+                                    <td colspan="2">Tổng phí phạt</td>
+                                    <td style="text-align:right" th:text="${#numbers.formatDecimal(penaltyResult.totalPenalty,1,'COMMA',0,'POINT')+' đ'}"></td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                            <div class="info-note mt-3">
+                                <i class="bi bi-info-circle-fill"></i>
+                                <span th:text="${penaltyResult.breakdownNote}"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <!-- Summary phạt: LUÔN HIỆN -->
+                        <div class="card summary-card">
+                            <div class="section-title">Tóm tắt phí phạt</div>
+                            <div class="summary-row">
+                                <span class="summary-label">Xe</span>
+                                <span class="summary-value" th:text="${penaltyResult?.vehicleDisplayName ?: '--'}">--</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Biển số</span>
+                                <span class="summary-value" th:text="${penaltyResult?.licensePlate ?: '--'}">--</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Trả trễ</span>
+                                <span class="summary-value" th:text="${penaltyResult != null ? penaltyResult.lateHours+' giờ' : '--'}">--</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Vượt km</span>
+                                <span class="summary-value" th:text="${penaltyResult != null ? penaltyResult.overKm+' km' : '--'}">--</span>
+                            </div>
+                            <div class="summary-total-row">
+                                <span class="summary-total-label">Tổng phạt</span>
+                                <span class="summary-total-value" style="color:var(--danger)"
+                                      th:text="${penaltyResult?.totalPenalty != null ? #numbers.formatDecimal(penaltyResult.totalPenalty,1,'COMMA',0,'POINT')+' đ' : '--'}">--</span>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="section-title">Chính sách phạt</div>
+                            <ul class="policy-list">
+                                <li>Trả xe trễ: tính thêm 50% giá thuê mỗi ngày trễ (tính từ 1h trễ).</li>
+                                <li>Phí vượt km: 2,000 đ/km vượt quá hợp đồng.</li>
+                                <li>Xe bẩn quá mức: phí vệ sinh 100,000–300,000 đ.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════
+                 TAB 3 – KHẤU HAO XE
+            ═══════════════════════════════════════════ -->
+            <div id="tab-depreciation">
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="section-title">1. Thông tin khấu hao xe</div>
+                            <form th:action="@{/calculation/depreciation}" th:object="${depreciationRequest}" method="post">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Chọn xe</label>
+                                        <select th:field="*{vehicleId}" class="form-select"
+                                                th:classappend="${#fields.hasErrors('vehicleId')}?'is-invalid'">
+                                            <option value="">-- Chọn xe --</option>
+                                            <option th:each="v : ${vehicles}"
+                                                    th:value="${v.vehicleId}"
+                                                    th:text="${v.make+' '+v.model+' '+v.year+' - '+v.licensePlate}">
+                                            </option>
+                                        </select>
+                                        <div class="invalid-feedback" th:errors="*{vehicleId}"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Giá trị ban đầu (đ)</label>
+                                        <input type="number" th:field="*{originalValue}" class="form-control"
+                                               placeholder="500000000" min="1"
+                                               th:classappend="${#fields.hasErrors('originalValue')}?'is-invalid'"/>
+                                        <div class="invalid-feedback" th:errors="*{originalValue}"></div>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Tỷ lệ khấu hao/năm (%)</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" name="annualDepreciationRate"
+                                                   th:value="${depreciationRequest?.annualDepreciationRate != null
+                                                   ? depreciationRequest.annualDepreciationRate.multiply(new java.math.BigDecimal('100')).stripTrailingZeros().toPlainString()
+                                                   : '20'}"
+                                                   step="1" min="1" max="50"/>
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Tuổi xe (năm)</label>
+                                        <input type="number" th:field="*{vehicleAgeYears}" class="form-control" min="1" max="30" placeholder="3"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Số km hiện tại</label>
+                                        <div class="input-group">
+                                            <input type="number" th:field="*{currentMileage}" class="form-control" min="0"/>
+                                            <span class="input-group-text">km</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-primary-custom">
+                                    <i class="bi bi-arrow-down-circle"></i> Tính khấu hao
+                                </button>
+                                <a href="/calculation" class="btn-outline-custom ms-2">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Làm mới
+                                </a>
+                            </form>
+                        </div>
+                        <div class="card" th:if="${depreciationResult != null}">
+                            <div class="section-title">2. Kết quả tính khấu hao</div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6 col-md-3">
+                                    <div style="background:var(--primary-light);border-radius:10px;padding:14px 16px;">
+                                        <div style="font-size:12px;color:var(--text-muted);">Giá trị ban đầu</div>
+                                        <div style="font-weight:700;color:var(--primary);font-size:14px;" th:text="${#numbers.formatDecimal(depreciationResult.originalValue,1,'COMMA',0,'POINT')+' đ'}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-3">
+                                    <div style="background:#fef3c7;border-radius:10px;padding:14px 16px;">
+                                        <div style="font-size:12px;color:var(--text-muted);">Tổng khấu hao</div>
+                                        <div style="font-weight:700;color:#d97706;font-size:14px;" th:text="${#numbers.formatDecimal(depreciationResult.totalDepreciationAmount,1,'COMMA',0,'POINT')+' đ'}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-3">
+                                    <div style="background:#dcfce7;border-radius:10px;padding:14px 16px;">
+                                        <div style="font-size:12px;color:var(--text-muted);">Giá trị còn lại</div>
+                                        <div style="font-weight:700;color:#16a34a;font-size:14px;" th:text="${#numbers.formatDecimal(depreciationResult.currentEstimatedValue,1,'COMMA',0,'POINT')+' đ'}"></div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-3">
+                                    <div style="background:#fee2e2;border-radius:10px;padding:14px 16px;">
+                                        <div style="font-size:12px;color:var(--text-muted);">Đã khấu hao</div>
+                                        <div style="font-weight:700;color:#dc2626;font-size:14px;" th:text="${depreciationResult.depreciationPercent+'%'}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <table class="result-table">
+                                <thead><tr><th>Năm</th><th style="text-align:right">Khấu hao (đ)</th><th style="text-align:right">Giá trị còn lại (đ)</th></tr></thead>
+                                <tbody>
+                                <tr th:each="row : ${depreciationResult.yearlyBreakdown}">
+                                    <td th:text="${row.year}"></td>
+                                    <td style="text-align:right" th:text="${#numbers.formatDecimal(row.depreciationAmount,1,'COMMA',0,'POINT')}"></td>
+                                    <td style="text-align:right" th:text="${#numbers.formatDecimal(row.bookValue,1,'COMMA',0,'POINT')}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <!-- Summary khấu hao: LUÔN HIỆN -->
+                        <div class="card summary-card">
+                            <div class="section-title">Tóm tắt khấu hao</div>
+                            <div class="summary-row">
+                                <span class="summary-label">Xe</span>
+                                <span class="summary-value" th:text="${depreciationResult?.vehicleDisplayName ?: '--'}">--</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Biển số</span>
+                                <span class="summary-value" th:text="${depreciationResult?.licensePlate ?: '--'}">--</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Tuổi xe</span>
+                                <span class="summary-value" th:text="${depreciationResult != null ? depreciationResult.vehicleAgeYears+' năm' : '--'}">--</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Tỷ lệ KH/năm</span>
+                                <span class="summary-value" th:text="${depreciationResult != null ? depreciationResult.annualDepreciationRate+'%' : '--'}">--</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Khấu hao/năm</span>
+                                <span class="summary-value" th:text="${depreciationResult?.annualDepreciationAmount != null ? #numbers.formatDecimal(depreciationResult.annualDepreciationAmount,1,'COMMA',0,'POINT')+' đ' : '--'}">--</span>
+                            </div>
+                            <div class="summary-total-row">
+                                <span class="summary-total-label">Giá trị còn lại</span>
+                                <span class="summary-total-value" style="color:var(--success)"
+                                      th:text="${depreciationResult?.currentEstimatedValue != null ? #numbers.formatDecimal(depreciationResult.currentEstimatedValue,1,'COMMA',0,'POINT')+' đ' : '--'}">--</span>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="section-title">Lưu ý khấu hao</div>
+                            <ul class="policy-list">
+                                <li>Áp dụng phương pháp khấu hao đường thẳng.</li>
+                                <li>Giá trị tối thiểu còn lại: 10% giá trị ban đầu.</li>
+                                <li>Thời gian khấu hao thông thường: 5–10 năm.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    /* Tab switching */
+    function switchTab(tab) {
+        ['rental','penalty','depreciation'].forEach(t => {
+            document.getElementById('tab-'+t).style.display = (t === tab) ? '' : 'none';
+        });
+        document.querySelectorAll('.calc-tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('onclick').includes("'"+tab+"'"));
+        });
+    }
+
+    /* AJAX: lấy thông tin xe khi chọn dropdown */
+    function onVehicleChange(vehicleId) {
+        const typeEl  = document.getElementById('vehicleType');
+        const rateEl  = document.getElementById('dailyRateDisplay');
+        const nameEl  = document.getElementById('sum-vehicle');
+        const plateEl = document.getElementById('sum-plate');
+        if (!vehicleId) {
+            if(typeEl)  typeEl.value  = '';
+            if(rateEl)  rateEl.value  = '';
+            if(nameEl)  nameEl.textContent  = '--';
+            if(plateEl) plateEl.textContent = '--';
+            return;
+        }
+        fetch('/calculation/vehicle-info/' + vehicleId)
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+                if (!data) return;
+                if(typeEl)  typeEl.value  = data.seatInfo  || '';
+                if(rateEl)  rateEl.value  = data.dailyRate ? Number(data.dailyRate).toLocaleString('vi-VN') : '';
+                if(nameEl)  nameEl.textContent  = data.displayName  || '--';
+                if(plateEl) plateEl.textContent = data.licensePlate || '--';
+            })
+            .catch(() => {});
+    }
+
+    /* Khôi phục tab đúng sau form submit (server trả về activeTab) */
+    document.addEventListener('DOMContentLoaded', () => {
+        const tab = document.getElementById('activeTabInput')?.value || 'rental';
+        switchTab(tab);
+    });
+</script>
+</body>
+</html>

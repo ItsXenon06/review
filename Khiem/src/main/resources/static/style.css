@@ -1,0 +1,586 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #F8FAFC; /* Màu nền xám siêu nhẹ cực sang */
+    color: #1E293B;
+}
+
+/* Chia đôi màn hình: Trái là Menu cố định, Phải là nội dung cuộn */
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ================= ĐỊNH HÌNH THANH MENU BÊN TRÁI ================= */
+.sidebar {
+    width: 260px;
+    background-color: #FFFFFF;
+    border-right: 1px solid #E2E8F0;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 0;
+    position: fixed;
+    height: 100vh;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    margin-bottom: 32px;
+}
+
+.brand-logo {
+    font-size: 24px;
+    margin-right: 12px;
+}
+
+.brand-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1E3A8A; /* Màu xanh đậm thương hiệu */
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+/* Kiểu dáng các nút bấm menu */
+.menu-item {
+    padding: 12px 24px;
+    color: #475569;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.menu-item:hover {
+    background-color: #F1F5F9;
+    color: #1D4ED8;
+}
+
+/* Nút được active giống hệt ảnh mẫu */
+.menu-item.active {
+    background-color: #EFF6FF;
+    color: #2563EB;
+    font-weight: 600;
+    border-right: 3px solid #2563EB; /* Thanh sọc xanh nhỏ bên mép phải */
+}
+
+.support-box {
+    margin: 0 20px;
+    padding: 16px;
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.support-title {
+    font-size: 12px;
+    color: #64748B;
+    margin-bottom: 4px;
+}
+
+.support-phone {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2563EB;
+}
+
+/* ================= VÙNG NỘI DUNG CHÍNH BÊN PHẢI ================= */
+.main-content {
+    flex: 1;
+    margin-left: 260px; /* Nhường chỗ cho Sidebar cố định */
+    padding: 40px;
+}
+
+.content-header {
+    margin-bottom: 32px;
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0F172A;
+    margin-bottom: 8px;
+}
+
+.page-subtitle {
+    font-size: 14px;
+    color: #64748B;
+}
+
+/* Chia lưới nội dung theo tỷ lệ 6:4 */
+.content-grid {
+    display: grid;
+    grid-template-columns: 6fr 4fr;
+    gap: 24px;
+}
+
+/* Định hình các khối hộp Card màu trắng đổ bóng bo tròn 12px */
+.card {
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+}
+
+.mb-4 {
+    margin-bottom: 24px;
+}
+
+.card-header {
+    margin-bottom: 20px;
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1E293B;
+}
+
+/* Các hàng thông báo đơn lẻ */
+.notification-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.item-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-right: 16px;
+}
+
+.icon-blue { background-color: #E0F2FE; }
+.icon-orange { background-color: #FFEDD5; }
+
+.item-body {
+    flex: 1;
+}
+
+.item-body h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.item-body p {
+    font-size: 13px;
+    color: #64748B;
+}
+
+.item-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-left: 16px;
+}
+
+.item-time {
+    font-size: 12px;
+    color: #94A3B8;
+    margin-bottom: 6px;
+}
+
+.dot-unread {
+    width: 8px;
+    height: 8px;
+    background-color: #2563EB;
+    border-radius: 50%;
+}
+
+/* Kiểu dáng khối nhắc nhở bên phải */
+.reminder-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+}
+
+.reminder-name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.reminder-desc {
+    font-size: 12px;
+    color: #64748B;
+}
+
+.reminder-time {
+    font-size: 12px;
+    text-align: right;
+}
+
+.text-danger { color: #EF4444; font-weight: 600; }
+
+/* Ô lưới số liệu 4 màu Pastel */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.stat-box {
+    padding: 16px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* 4 màu pastel chuẩn mẫu */
+.badge-blue { background-color: #EFF6FF; color: #1E40AF; }
+.badge-green { background-color: #F0FDF4; color: #166534; }
+.badge-orange { background-color: #FFF7ED; color: #9A3412; }
+.badge-purple { background-color: #FAF5FF; color: #6B21A8; }
+/* Làm phẳng nút bấm thông báo trải dài */
+.collapsible-btn {
+    background: #ffffff;
+    color: #333;
+    cursor: pointer;
+    padding: 16px 20px;
+    width: 100%;
+    border: 1px solid #ebedf2;
+    border-radius: 14px;
+    text-align: left;
+    outline: none;
+    transition: background-color 0.2s ease, border-radius 0.2s ease;
+}
+
+.collapsible-btn:hover {
+    background-color: #f8f9fa;
+}
+
+/* Khối nội dung xếp ngang */
+.btn-content {
+    display: flex;
+    align-items: center;
+}
+
+.icon-circle {
+    font-size: 20px;
+    margin-right: 15px;
+    background: #f1f3f9;
+    padding: 8px 12px;
+    border-radius: 50%;
+}
+
+.text-info-block {
+    flex-grow: 1;
+}
+
+.text-info-block p {
+    margin: 4px 0 0 0;
+    color: #6c757d;
+    font-size: 13.5px;
+}
+
+.time-stamp {
+    font-size: 12px;
+    color: #adb5bd;
+    align-self: flex-start;
+}
+
+/* Hiệu ứng trượt xuống mượt mà bằng max-height */
+.customer-details-block {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
+    background-color: #ffffff;
+    border-radius: 0 0 14px 14px;
+    border: 1px solid #ebedf2;
+    border-top: none;
+    margin-top: -4px;
+}
+
+.details-inner {
+    padding: 20px;
+    border-left: 4px solid #0d6efd; /* Vạch màu xanh điểm nhấn */
+}
+
+.details-inner h5 {
+    margin: 0 0 15px 0;
+    color: #0d6efd;
+    font-size: 15px;
+}
+
+/* Chia lưới hiển thị thông tin */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px 20px;
+    font-size: 14px;
+}
+
+.info-grid strong {
+    color: #495057;
+}
+.expired-notification {
+    background-color: #ffe8e8 !important; /* Màu nền đỏ nhạt cảnh báo */
+    border-left: 5px solid #d63031 !important; /* Viền trái đỏ đậm */
+    transition: 0.3s;
+}
+
+.expired-notification strong,
+.expired-notification p,
+.expired-notification small {
+    color: #b33939 !important; /* Chữ đậm màu hơn */
+    font-weight: 600;
+}
+.expired-notification .details-inner {
+    border-left: 4px solid #d63031 !important; /* Đổi viền sang đỏ */
+}
+
+/* Đè lên tiêu đề xanh của khối chi tiết */
+.expired-notification .details-inner h5 {
+    color: #d63031 !important; /* Đổi tiêu đề 'Thông tin người thuê xe' sang đỏ */
+}
+
+/* Đè lên chữ đậm (label) trong bảng thông tin */
+.expired-notification .info-grid strong {
+    color: #b33939 !important; /* Đổi màu chữ label (Họ và tên, Email...) sang đỏ */
+}
+.group-toggle-btn {
+    border-radius: 14px;
+    transition: background-color 0.2s;
+    font-size: 14px;
+    font-weight: 500;
+    color: #475569;
+}
+.group-toggle-btn:hover {
+    background-color: #f1f5f9 !important;
+}
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    justify-content: center;
+    /* Chỉnh lên trên thay vì nằm giữa */
+    align-items: flex-start;
+    padding-top: 100px; /* Khoảng cách từ trên xuống */
+}
+
+/* Hộp thông báo đã tăng kích thước */
+.modal-box {
+    background: #fff;
+    padding: 40px; /* Tăng padding để nhìn thoáng hơn */
+    border-radius: 20px; /* Bo góc mềm mại hơn */
+    width: 550px; /* Kích thước cũ 350px -> nay là 550px (~ gấp 1.5 lần) */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); /* Đổ bóng đậm hơn cho nổi bật */
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Tiêu đề to hơn */
+.modal-box h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+/* Nội dung thông báo to rõ hơn */
+.modal-box p {
+    font-size: 1.3rem;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Nút bấm to hơn */
+.modal-box button {
+    margin-top: 30px;
+    padding: 12px 50px;
+    background: #e67e22;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.modal-box button:hover {
+    background: #d35400;
+}
+/* Thêm vào file CSS của bạn */
+#urgent-list {
+    max-height: 400px; /* Chiều cao tối đa */
+    overflow-y: auto;  /* Tự động hiện thanh cuộn nếu quá dài */
+}
+/* Container bao quanh bảng bên phải */
+#urgent-contracts-container {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+}
+
+/* Khu vực danh sách */
+#urgent-list {
+    max-height: 400px; /* Chiều cao cố định */
+    overflow-y: auto;  /* Tự động hiện thanh cuộn */
+    scrollbar-width: thin; /* Thanh cuộn mảnh cho trình duyệt hiện đại */
+}
+
+/* Tùy chỉnh thanh cuộn */
+#urgent-list::-webkit-scrollbar {
+    width: 6px;
+}
+#urgent-list::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+}
+
+/* Từng mục bảo dưỡng */
+.urgent-item {
+    padding: 12px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.3s ease;
+    cursor: pointer;
+}
+
+/* Hiệu ứng khi di chuột vào */
+.urgent-item:hover {
+    background-color: #f7f9fc;
+}
+
+/* Định dạng text */
+.urgent-item strong {
+    color: #333;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.urgent-item small {
+    color: #666;
+    font-size: 0.85em;
+}
+
+/* Màu nổi bật cho ngày tháng */
+.date-highlight {
+    color: #e74c3c; /* Màu đỏ cho nổi bật */
+    font-weight: bold;
+}
+.maintenance-category {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 20px;
+    width: 100%;
+    max-width: 400px; /* Độ rộng danh mục */
+}
+
+.category-header h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 18px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+.maintenance-card {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    transition: background 0.3s;
+}
+
+.maintenance-card:hover {
+    background: #f9f9f9;
+}
+
+.vehicle-plate {
+    font-weight: bold;
+    color: #d35400; /* Màu cam nổi bật cho biển số */
+    background: #fff3e0;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-right: 15px;
+}
+
+.maint-type {
+    font-size: 14px;
+    font-weight: 600;
+    color: #27ae60; /* Màu xanh cho loại bảo dưỡng */
+}
+
+.maint-desc {
+    font-size: 12px;
+    color: #666;
+    margin: 2px 0 0 0;
+}
+.collapsible-btn {
+    transition: all 0.3s ease; /* Làm cho sự thay đổi diễn ra từ từ */
+    border: 1px solid #ddd;
+    outline: none; /* Bỏ viền mặc định của trình duyệt */
+}
+
+/* Hiệu ứng khi di chuột vào */
+.collapsible-btn:hover {
+    background-color: #f8fbff !important; /* Đổi sang màu xanh nhạt rất nhẹ */
+    border-color: #3498db;              /* Đổi màu viền sang xanh dương */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Thêm đổ bóng để cảm giác nổi lên */
+    transform: translateY(-2px);        /* Hiệu ứng nhấc nút lên một chút */
+    cursor: pointer;
+}
+
+/* Hiệu ứng khi nhấn giữ (tăng cảm giác thực tế) */
+.collapsible-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+.icon-circle {
+    width: 45px;          /* Kích thước vòng tròn */
+    height: 45px;
+    border-radius: 50%;   /* Tạo hình tròn */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa; /* Màu nền nhạt */
+    margin-right: 15px;
+    font-size: 1.2rem;
+    flex-shrink: 0;       /* Đảm bảo icon không bị co lại */
+}
+
+/* Màu sắc cho từng loại icon */
+.text-primary { color: #3498db; background-color: #eaf2f8; } /* Màu xanh cho menu */
+.text-warning { color: #f39c12; background-color: #fef5e7; } /* Màu vàng cho chuông */

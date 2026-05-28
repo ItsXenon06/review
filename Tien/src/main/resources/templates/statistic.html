@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống Kê - Quản Lý Thuê Xe Tự Lái</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --sidebar-width: 240px;
+            --primary: #1a73e8;
+            --bg: #f5f7fa;
+        }
+
+        * { box-sizing: border-box; }
+        body { background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: #fff;
+            border-right: 1px solid #e8ecf0;
+            position: fixed;
+            top: 0; left: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .sidebar-brand {
+            display: flex; align-items: center; gap: 10px;
+            padding: 18px 20px;
+            border-bottom: 1px solid #e8ecf0;
+            font-weight: 700; font-size: 13px; color: #1a73e8;
+        }
+        .sidebar-brand i { font-size: 22px; }
+        .sidebar-menu { flex: 1; padding: 12px 0; overflow-y: auto; }
+        .sidebar-menu a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 20px;
+            color: #4a5568; text-decoration: none;
+            font-size: 14px; border-radius: 0;
+            transition: background .15s, color .15s;
+        }
+        .sidebar-menu a:hover { background: #f0f4ff; color: var(--primary); }
+        .sidebar-menu a.active {
+            background: #e8f0fe; color: var(--primary);
+            font-weight: 600; border-right: 3px solid var(--primary);
+        }
+        .sidebar-menu a i { font-size: 16px; width: 20px; text-align: center; }
+        .sidebar-support {
+            margin: 12px; padding: 14px; background: #f0f7ff;
+            border-radius: 10px; font-size: 12px; color: #555;
+        }
+        .sidebar-support strong { color: var(--primary); font-size: 14px; }
+
+        /* ── MAIN ── */
+        .main-content { margin-left: var(--sidebar-width); min-height: 100vh; }
+        .topbar {
+            background: #fff; border-bottom: 1px solid #e8ecf0;
+            padding: 12px 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 50;
+        }
+        .topbar-right { display: flex; align-items: center; gap: 16px; }
+        .topbar-right .avatar {
+            width: 36px; height: 36px; background: #e8f0fe;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; color: var(--primary); font-weight: 700;
+        }
+
+        .page-body { padding: 24px; }
+
+        /* ── STAT CARDS ── */
+        .stat-card {
+            background: #fff; border-radius: 12px;
+            padding: 20px; border: 1px solid #e8ecf0;
+            display: flex; align-items: center; gap: 16px;
+        }
+        .stat-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; flex-shrink: 0;
+        }
+        .stat-card .value { font-size: 22px; font-weight: 700; color: #1a202c; line-height: 1; }
+        .stat-card .label { font-size: 12px; color: #718096; margin-bottom: 4px; }
+        .stat-card .trend { font-size: 12px; margin-top: 4px; }
+        .trend.up { color: #22c55e; }
+        .trend.down { color: #ef4444; }
+
+        /* ── CHART CARDS ── */
+        .chart-card {
+            background: #fff; border-radius: 12px;
+            padding: 20px; border: 1px solid #e8ecf0;
+            height: 100%;
+        }
+        .chart-card h6 { font-weight: 600; color: #1a202c; margin-bottom: 16px; font-size: 14px; }
+
+        /* ── TOP 5 LIST ── */
+        .top-vehicle-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 8px 0; border-bottom: 1px solid #f0f0f0;
+        }
+        .top-vehicle-item:last-child { border-bottom: none; }
+        .top-vehicle-item .car-img {
+            width: 56px; height: 36px; background: #f5f7fa;
+            border-radius: 6px; display: flex; align-items: center;
+            justify-content: center; color: #aaa; font-size: 20px;
+        }
+        .bar-track { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
+        .bar-fill { height: 100%; background: var(--primary); border-radius: 4px; }
+
+        /* ── LEGEND ── */
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <i class="bi bi-car-front-fill"></i>
+        QUẢN LÝ THUÊ XE TỰ LÁI
+    </div>
+    <nav class="sidebar-menu">
+        <a href="#"><i class="bi bi-grid-1x2"></i> Tổng quan</a>
+        <a href="#"><i class="bi bi-archive"></i> Lưu trữ</a>
+        <a href="#"><i class="bi bi-search"></i> Tra cứu</a>
+        <a href="/statistic" class="active"><i class="bi bi-bar-chart-line"></i> Thống kê</a>
+        <a href="#"><i class="bi bi-calculator"></i> Tính toán</a>
+        <a href="#"><i class="bi bi-file-text"></i> Hợp đồng</a>
+        <a href="#"><i class="bi bi-people"></i> Khách hàng</a>
+        <a href="#"><i class="bi bi-car-front"></i> Xe</a>
+        <a href="#"><i class="bi bi-bell"></i> Thông báo</a>
+        <a href="#"><i class="bi bi-shield-check"></i> Phân quyền</a>
+        <a href="#"><i class="bi bi-gear"></i> Cài đặt</a>
+        <a href="#"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
+    </nav>
+    <div class="sidebar-support">
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="bi bi-headset fs-5 text-primary"></i>
+            <span>Hỗ trợ 24/7</span>
+        </div>
+        <strong>1900 1234 567</strong>
+    </div>
+</aside>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<div class="main-content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <button class="btn btn-sm btn-light border-0"><i class="bi bi-list fs-5"></i></button>
+        <div class="topbar-right">
+            <button class="btn btn-sm btn-light border-0 position-relative">
+                <i class="bi bi-bell fs-5"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:9px">3</span>
+            </button>
+            <div class="d-flex align-items-center gap-2">
+                <div class="avatar">A</div>
+                <div>
+                    <div style="font-size:13px;font-weight:600">Admin</div>
+                    <div style="font-size:11px;color:#718096">Quản trị viên</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE BODY -->
+    <div class="page-body">
+
+        <!-- Header -->
+        <div class="d-flex align-items-start justify-content-between mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">Thống kê</h4>
+                <p class="text-muted mb-0" style="font-size:13px">Tổng quan tình hình hoạt động của hệ thống thuê xe tự lái.</p>
+            </div>
+            <button class="btn btn-primary d-flex align-items-center gap-2" style="font-size:13px">
+                <i class="bi bi-download"></i> Xuất báo cáo
+            </button>
+        </div>
+
+        <!-- ── STAT CARDS ── -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#e8f0fe;color:#1a73e8"><i class="bi bi-currency-dollar"></i></div>
+                    <div>
+                        <div class="label">Tổng doanh thu</div>
+                        <div class="value"
+                             th:text="${#numbers.formatDecimal(totalRevenue != null ? totalRevenue : 0, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                            0 ₫
+                        </div>
+                        <div class="trend up"><i class="bi bi-arrow-up"></i> 18.6% so với kỳ trước</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#e6f9f0;color:#22c55e"><i class="bi bi-receipt"></i></div>
+                    <div>
+                        <div class="label">Tổng đơn thuê</div>
+                        <div class="value" th:text="${totalBookings != null ? totalBookings : 0} + ' đơn'">0 đơn</div>
+                        <div class="trend up"><i class="bi bi-arrow-up"></i> 12.4% so với kỳ trước</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#fff3e0;color:#f59e0b"><i class="bi bi-car-front"></i></div>
+                    <div>
+                        <div class="label">Tổng số xe cho thuê</div>
+                        <div class="value" th:text="${totalVehicles != null ? totalVehicles : 0} + ' lượt'">0 lượt</div>
+                        <div class="trend up"><i class="bi bi-arrow-up"></i> 8.7% so với kỳ trước</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:#fce8f3;color:#ec4899"><i class="bi bi-pie-chart"></i></div>
+                    <div>
+                        <div class="label">Tỷ lệ xe sử dụng</div>
+                        <div class="value" th:text="${utilizationRate != null ? utilizationRate : '0'} + '%'">0%</div>
+                        <div class="trend up"><i class="bi bi-arrow-up"></i> 6.3% so với kỳ trước</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── ROW 2: Line Chart + Donut Chart ── -->
+        <div class="row g-3 mb-3">
+            <div class="col-lg-8">
+                <div class="chart-card">
+                    <h6>Doanh thu theo tháng</h6>
+                    <canvas id="revenueLineChart" height="100"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-card">
+                    <h6>Trạng thái đội xe</h6>
+                    <canvas id="vehicleDonutChart" height="180"></canvas>
+                    <div class="mt-3" id="vehicleLegend"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── ROW 3: Top 5 + Monthly Bar + Reservation Status ── -->
+        <div class="row g-3">
+            <div class="col-lg-4">
+                <div class="chart-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">Top 5 xe cho thuê nhiều nhất</h6>
+                        <a href="#" style="font-size:12px;color:var(--primary)">Xem chi tiết</a>
+                    </div>
+                    <div id="top5List">
+                        <!-- Rendered by JS from topVehicles data -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-card">
+                    <h6>Doanh thu theo tháng</h6>
+                    <canvas id="monthlyBarChart" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-card">
+                    <h6>Tỷ lệ trạng thái đơn thuê</h6>
+                    <canvas id="reservationDonut" height="200"></canvas>
+                    <div class="mt-3" id="reservationLegend"></div>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-muted mt-3" style="font-size:11px">
+            <i class="bi bi-arrow-repeat"></i>
+            Dữ liệu được cập nhật lúc <span th:text="${#dates.format(#dates.createNow(), 'HH:mm dd/MM/yyyy')}">--:-- --/--/----</span>
+        </p>
+
+    </div><!-- /page-body -->
+</div><!-- /main-content -->
+
+<!-- ══════════════ SCRIPTS ══════════════ -->
+<script th:inline="javascript">
+    // ── Dữ liệu từ server (Thymeleaf inject) ──
+    const rawMonthly  = /*[[${monthlyRevenue}]]*/ [];
+    const rawVehicle  = /*[[${vehicleStats}]]*/ [];
+    const rawTopVehicles = /*[[${topVehicles}]]*/ [];
+    const rawReservationStats = /*[[${reservationStats}]]*/ [];
+
+    // ── Màu sắc ──
+    const COLORS = ['#1a73e8','#22c55e','#f59e0b','#ec4899','#8b5cf6','#06b6d4'];
+    const VEHICLE_COLORS = { Available:'#22c55e', Rented:'#1a73e8', Maintenance:'#f59e0b', Retired:'#ef4444' };
+    const RESERVATION_COLORS = { Completed:'#22c55e', Active:'#1a73e8', Cancelled:'#ef4444', NoShow:'#f59e0b', Pending:'#8b5cf6', Confirmed:'#06b6d4' };
+
+    // ── Fallback data nếu chưa có backend ──
+    const monthlyData = rawMonthly.length ? rawMonthly : [
+        {Month:1,Revenue:800000000},{Month:2,Revenue:950000000},{Month:3,Revenue:1100000000},
+        {Month:4,Revenue:1400000000},{Month:5,Revenue:2375000000},{Month:6,Revenue:1800000000},
+        {Month:7,Revenue:2100000000},{Month:8,Revenue:1950000000},{Month:9,Revenue:1600000000},
+        {Month:10,Revenue:1700000000},{Month:11,Revenue:1850000000},{Month:12,Revenue:2200000000}
+    ];
+    const vehicleData = rawVehicle.length ? rawVehicle : [
+        {Status:'Available',Count:4},{Status:'Rented',Count:2},{Status:'Maintenance',Count:1}
+    ];
+    const topVehiclesData = rawTopVehicles.length ? rawTopVehicles : [
+        {Model:'Toyota Vios', Count:45}, {Model:'Mazda 3', Count:38},
+        {Model:'Honda Civic', Count:32},{Model:'Hyundai Tucson',Count:28},{Model:'Kia Seltos',Count:25}
+    ];
+    const reservationData = rawReservationStats.length ? rawReservationStats : [
+        {Status:'Completed',Count:287},{Status:'Active',Count:112},
+        {Status:'Cancelled',Count:35},{Status:'NoShow',Count:22}
+    ];
+
+    // ── 1. Biểu đồ đường: Doanh thu theo tháng ──
+    new Chart(document.getElementById('revenueLineChart'), {
+        type: 'line',
+        data: {
+            labels: monthlyData.map(d => 'T' + d.Month),
+            datasets:[{
+                label: 'Doanh thu (₫)',
+                data: monthlyData.map(d => d.Revenue),
+                borderColor: '#1a73e8',
+                backgroundColor: 'rgba(26,115,232,0.08)',
+                pointBackgroundColor: '#1a73e8',
+                pointRadius: 4,
+                fill: true, tension: 0.3
+            }]
+        },
+        options:{
+            responsive:true,
+            plugins:{ legend:{ display:false } },
+            scales:{
+                y:{ ticks:{ callback: v => (v/1000000)+'M', font:{size:11} }, grid:{color:'#f0f0f0'} },
+                x:{ grid:{display:false}, ticks:{font:{size:11}} }
+            }
+        }
+    });
+
+    // ── 2. Donut: Trạng thái xe ──
+    const vLabels = vehicleData.map(d=>d.Status);
+    const vCounts = vehicleData.map(d=>d.Count);
+    const vColors = vLabels.map(l=>VEHICLE_COLORS[l]||'#aaa');
+
+    new Chart(document.getElementById('vehicleDonutChart'), {
+        type:'doughnut',
+        data:{ labels:vLabels, datasets:[{ data:vCounts, backgroundColor:vColors, borderWidth:2 }] },
+        options:{
+            cutout:'65%', responsive:true,
+            plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: ctx => ` ${ctx.label}: ${ctx.raw} xe` } } }
+        }
+    });
+    const vLegendEl = document.getElementById('vehicleLegend');
+    vLabels.forEach((l,i)=>{
+        vLegendEl.innerHTML += `<div class="d-flex justify-content-between align-items-center mb-1" style="font-size:12px">
+            <span><span class="legend-dot" style="background:${vColors[i]}"></span> ${l}</span>
+            <strong>${vCounts[i]} xe</strong></div>`;
+    });
+
+    // ── 3. Top 5 xe ──
+    const maxCount = Math.max(...topVehiclesData.map(d=>d.Count));
+    const top5El = document.getElementById('top5List');
+    topVehiclesData.forEach((d,i)=>{
+        top5El.innerHTML += `<div class="top-vehicle-item">
+            <div class="car-img"><i class="bi bi-car-front"></i></div>
+            <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:500;margin-bottom:4px">${d.Model}</div>
+                <div class="bar-track"><div class="bar-fill" style="width:${(d.Count/maxCount*100).toFixed(0)}%"></div></div>
+            </div>
+            <span style="font-size:12px;color:#718096;flex-shrink:0;margin-left:8px">${d.Count} lượt</span>
+        </div>`;
+    });
+
+    // ── 4. Bar chart: Doanh thu theo tháng ──
+    new Chart(document.getElementById('monthlyBarChart'), {
+        type:'bar',
+        data:{
+            labels: monthlyData.map(d=>'T'+d.Month),
+            datasets:[{
+                label:'Doanh thu',
+                data: monthlyData.map(d=>d.Revenue),
+                backgroundColor: monthlyData.map((_,i)=> i===4 ? '#1a73e8':'#bfd7fa'),
+                borderRadius: 4
+            }]
+        },
+        options:{
+            responsive:true,
+            plugins:{ legend:{display:false} },
+            scales:{
+                y:{ ticks:{ callback: v=>(v/1000000000).toFixed(1)+'B', font:{size:10} }, grid:{color:'#f0f0f0'} },
+                x:{ grid:{display:false}, ticks:{font:{size:10}} }
+            }
+        }
+    });
+
+    // ── 5. Donut: Trạng thái đơn thuê ──
+    const rLabels = reservationData.map(d=>d.Status);
+    const rCounts = reservationData.map(d=>d.Count);
+    const rColors = rLabels.map(l=>RESERVATION_COLORS[l]||'#aaa');
+    const rTotal  = rCounts.reduce((a,b)=>a+b,0);
+
+    new Chart(document.getElementById('reservationDonut'), {
+        type:'doughnut',
+        data:{ labels:rLabels, datasets:[{ data:rCounts, backgroundColor:rColors, borderWidth:2 }] },
+        options:{
+            cutout:'65%', responsive:true,
+            plugins:{ legend:{display:false} }
+        }
+    });
+    const rLegendEl = document.getElementById('reservationLegend');
+    const rViLabel = {Completed:'Hoàn thành',Active:'Đang thuê',Cancelled:'Đã hủy',NoShow:'Quá hạn',Pending:'Chờ duyệt',Confirmed:'Xác nhận'};
+    rLabels.forEach((l,i)=>{
+        const pct = ((rCounts[i]/rTotal)*100).toFixed(1);
+        rLegendEl.innerHTML += `<div class="d-flex justify-content-between align-items-center mb-1" style="font-size:12px">
+            <span><span class="legend-dot" style="background:${rColors[i]}"></span> ${rViLabel[l]||l}</span>
+            <span>${rCounts[i]} đơn (${pct}%)</span></div>`;
+    });
+</script>
+</body>
+</html>
