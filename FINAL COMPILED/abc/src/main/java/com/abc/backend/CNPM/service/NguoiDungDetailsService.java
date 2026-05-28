@@ -1,6 +1,6 @@
 package com.abc.backend.CNPM.service;
 
-import com.abc.backend.CNPM.model.PhanQuyen.NguoiDung;
+import com.abc.backend.CNPM.model.NguoiDung;
 import com.abc.backend.CNPM.repository.PhanQuyen.NguoiDungRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

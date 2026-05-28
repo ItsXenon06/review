@@ -1,4 +1,4 @@
-package com.abc.backend.CNPM.model.PhanQuyen;
+package com.abc.backend.CNPM.model;
 
 
 public enum DanhMucChucNang {

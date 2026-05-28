@@ -1,4 +1,4 @@
-package com.abc.backend.CNPM.exception;
+package com.abc.backend.CNPM.Exception;
 
 import com.abc.backend.CNPM.Exception.AppException;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,6 @@
 package com.abc.backend.CNPM.repository.PhanQuyen;
 
-import com.abc.backend.CNPM.model.PhanQuyen.NguoiDung;
+import com.abc.backend.CNPM.model.NguoiDung;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -16,7 +16,7 @@
     <a th:href="@{/storage(tab='customer')}" th:classappend="${active=='customers'}?'active':''" class="sidebar-link"><i class="bi bi-people"></i> Khách hàng</a>
     <a th:href="@{/storage(tab='vehicle')}"  th:classappend="${active=='vehicles'}?'active':''"  class="sidebar-link"><i class="bi bi-car-front"></i> Xe</a>
     <a th:href="@{/payments}"      th:classappend="${active=='payments'}?'active':''"    class="sidebar-link"><i class="bi bi-credit-card"></i> Thanh toán</a>
-    <a th:href="@{/dashboard}"     th:classappend="${active=='notifications'}?'active':'" class="sidebar-link"><i class="bi bi-bell"></i> Thông báo</a>
+    <a th:href="@{/dashboard}"     th:classappend="${active=='notifications'}?'active':''" class="sidebar-link"><i class="bi bi-bell"></i> Thông báo</a>
     <a th:href="@{/roles}"         th:classappend="${active=='roles'}?'active':''"       class="sidebar-link"><i class="bi bi-shield-check"></i> Phân quyền</a>
     <a th:href="@{/settings}"      th:classappend="${active=='settings'}?'active':''"    class="sidebar-link"><i class="bi bi-gear"></i> Cài đặt</a>
     <a th:href="@{/logout}"        class="sidebar-link"><i class="bi bi-box-arrow-left"></i> Đăng xuất</a>

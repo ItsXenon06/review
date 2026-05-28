@@ -356,6 +356,7 @@ CREATE TABLE quyen (
     phan_quyen           BIT          NOT NULL DEFAULT 0,
     CONSTRAINT UQ_quyen_vaitro_danhmuc UNIQUE (vai_tro_id, danh_muc_chuc_nang)
 );
+GO -- ADDED THIS LINE
 
 -- Seed: Admin role
 INSERT INTO vai_tro (ten_vai_tro, mo_ta, la_toan_quyen)
@@ -365,7 +366,7 @@ WHERE NOT EXISTS (SELECT 1 FROM vai_tro WHERE ten_vai_tro = N'Admin');
 -- Seed: Admin user (BCrypt of 'admin123' — change before production)
 INSERT INTO nguoi_dung (ho_ten, email, mat_khau, so_dien_thoai, vai_tro_id, trang_thai)
 SELECT N'Quản trị viên', 'admin@thuexe.vn',
-       '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+       '$2a$10$LKz4rgxU6RONRy4VgDyW7eFD8q.t6gFWbUbd1UwKyHNbfHCFH0wiG',
        '0901234567',
        (SELECT id FROM vai_tro WHERE ten_vai_tro = N'Admin'),
        1

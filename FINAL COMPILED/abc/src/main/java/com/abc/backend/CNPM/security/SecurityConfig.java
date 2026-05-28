@@ -1,12 +1,14 @@
 package com.abc.backend.CNPM.security;
 
-import com.abc.backend.CNPM.service.JwtAuthenticationFilter;
+import com.abc.backend.CNPM.security.JwtAuthenticationFilter;
 import com.abc.backend.CNPM.service.NguoiDungDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,9 +32,11 @@ public class SecurityConfig {
 
     @Bean
 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.authenticationProvider(authenticationProvider()); // ✅ ADD THIS LINE
     http
         .csrf(csrf -> csrf.disable())
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .authenticationProvider(authenticationProvider())
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(
                 "/login", "/logout",
@@ -81,7 +85,6 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();

@@ -1,4 +1,4 @@
-package com.abc.backend.CNPM.service;
+package com.abc.backend.CNPM.security;
 
 import com.abc.backend.CNPM.security.PhanQuyenSecurity;
 import jakarta.servlet.FilterChain;
@@ -53,6 +53,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authToken);
+        } else {
+            // If the token is invalid, send an unauthorized response
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Invalid or expired JWT token.");
+            return; // Stop the filter chain
         }
 
         filterChain.doFilter(request, response);

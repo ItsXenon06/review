@@ -7,6 +7,7 @@ import com.abc.backend.CNPM.repository.VehicleRepository;
 import com.abc.backend.CNPM.service.CalculationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import com.abc.backend.CNPM.dto.PenaltyResultDTO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
