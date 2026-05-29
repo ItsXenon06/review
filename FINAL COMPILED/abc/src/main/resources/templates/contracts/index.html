@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Hợp đồng - Quản lý thuê xe</title>
+  <th:block th:replace="~{fragments/shared-styles :: styles}"></th:block>
+</head>
+<body>
+<div class="layout">
+  <th:block th:replace="~{fragments/sidebar :: sidebar('contracts')}"></th:block>
+  <div class="main-wrap">
+    <th:block th:replace="~{fragments/topbar :: topbar('Hợp đồng')}"></th:block>
+    <main class="page-content">
+      <div class="d-flex align-items-start justify-content-between mb-4">
+        <div>
+          <h1 class="page-title">Hợp đồng</h1>
+          <p class="page-subtitle">Danh sách hợp đồng sắp hết hạn hoặc đã hết hạn.</p>
+        </div>
+      </div>
+
+      <div class="data-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Khách hàng</th>
+              <th>Ngày bắt đầu</th>
+              <th>Ngày kết thúc</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="c : ${expiringContracts}" th:if="${c != null and c.contractID != null}">
+              <td class="fw-600" th:text="'#00' + ${c.contractID}"></td>
+              <td th:text="${c.customer != null ? c.customer.firstName + ' ' + c.customer.lastName : 'N/A'}"></td>
+              <td th:text="${c.startDate != null ? #temporals.format(c.startDate, 'dd/MM/yyyy') : '--'}"></td>
+              <td th:text="${c.endDate != null ? #temporals.format(c.endDate, 'dd/MM/yyyy') : '--'}"></td>
+              <td>
+                <span th:class="${c.expired ? 'status-badge status-cancelled' : 'status-badge status-confirmed'}"
+                      th:text="${c.daysRemainingStatus}"></span>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary"
+                        th:onclick="'submitReminder(this)'"
+                        th:attr="data-contract-id=${c.contractID}, data-end-date=${c.endDate}">
+                  Gửi nhắc nhở
+                </button>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(expiringContracts)}">
+              <td colspan="6" class="text-center text-muted py-4">Không có hợp đồng sắp hết hạn</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="customModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:14px;padding:30px;max-width:400px;text-align:center;">
+    <h5 id="modalMessage"></h5>
+    <button onclick="document.getElementById('customModal').style.display='none'" class="btn btn-primary mt-3">Đóng</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function submitReminder(button) {
+    const contractId = button.getAttribute('data-contract-id');
+    const endDateStr = button.getAttribute('data-end-date');
+    const endDate = new Date(endDateStr.replace(' ', 'T'));
+    const now = new Date();
+    const modal = document.getElementById('customModal');
+    const msg = document.getElementById('modalMessage');
+    modal.style.display = 'flex';
+
+    if (now > endDate) {
+        fetch('/api/notifications/send/' + contractId, { method: 'POST' })
+        .then(r => r.text().then(t => {
+            msg.textContent = r.ok ? 'Đã gửi thông báo: ' + t : 'Lỗi: ' + t;
+            if (r.ok) { button.textContent = 'Đã nhắc nhở'; button.disabled = true; }
+        }))
+        .catch(() => { msg.textContent = 'Không thể kết nối đến máy chủ!'; });
+    } else {
+        msg.textContent = 'Hợp đồng #00' + contractId + ' vẫn còn hạn thuê. Không thể gửi thông báo.';
+    }
+}
+</script>
+</body>
+</html>

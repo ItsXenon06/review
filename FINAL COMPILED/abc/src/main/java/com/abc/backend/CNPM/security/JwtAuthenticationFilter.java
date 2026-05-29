@@ -23,43 +23,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final PhanQuyenSecurity phanQuyenSecurity;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+protected void doFilterInternal(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        FilterChain filterChain
+) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
+    final String authHeader = request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String token = authHeader.substring(7);
-
-        if (phanQuyenSecurity.validateToken(token)) {
-            String email  = phanQuyenSecurity.layEmail(token);
-            String vaiTro = phanQuyenSecurity.layVaiTro(token);
-
-            UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(
-                            email,
-                            null,
-                            vaiTro != null
-                                ? List.of(new SimpleGrantedAuthority("ROLE_" + vaiTro))
-                                : List.of()
-                    );
-
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-        } else {
-            // If the token is invalid, send an unauthorized response
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Invalid or expired JWT token.");
-            return; // Stop the filter chain
-        }
-
+    // No Bearer token → let session-based auth handle it normally
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
         filterChain.doFilter(request, response);
+        return;
     }
+
+    String token = authHeader.substring(7);
+
+    if (phanQuyenSecurity.validateToken(token)) {
+        String email  = phanQuyenSecurity.layEmail(token);
+        String vaiTro = phanQuyenSecurity.layVaiTro(token);
+
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(
+                        email,
+                        null,
+                        vaiTro != null
+                            ? List.of(new SimpleGrantedAuthority("ROLE_" + vaiTro))
+                            : List.of()
+                );
+
+        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+    }
+    // If token is present but invalid, fall through — Spring Security will
+    // reject the unauthenticated request via the normal 403/redirect mechanism.
+
+    filterChain.doFilter(request, response);
+}
+
 }

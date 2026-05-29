@@ -237,8 +237,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        const active = document.querySelector('.rtab[th\\:classappend]');
         switchTab(activeTab, null);
+        // Activate the correct tab button based on server-rendered active class
         document.querySelectorAll('.rtab').forEach(b => {
             if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + activeTab + "'")) {
                 b.classList.add('active');

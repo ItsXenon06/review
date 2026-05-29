@@ -4,6 +4,8 @@ import com.abc.backend.CNPM.model.*;
 import com.abc.backend.CNPM.model.enums.*;
 import com.abc.backend.CNPM.repository.*;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -202,4 +204,19 @@ public class StorageController {
         if (s == null || s.isBlank()) return null;
         try { return VehicleStatus.valueOf(s); } catch (Exception e) { return null; }
     }
+    @GetMapping("/vehicles/{id}/data")
+@ResponseBody
+public ResponseEntity<?> getVehicleData(@PathVariable Integer id) {
+    return vehicleRepository.findById(id)
+            .map(v -> ResponseEntity.ok(v))
+            .orElse(ResponseEntity.notFound().build());
+}
+
+@GetMapping("/customers/{id}/data")
+@ResponseBody
+public ResponseEntity<?> getCustomerData(@PathVariable Integer id) {
+    return customerRepository.findById(id)
+            .map(c -> ResponseEntity.ok(c))
+            .orElse(ResponseEntity.notFound().build());
+}
 }

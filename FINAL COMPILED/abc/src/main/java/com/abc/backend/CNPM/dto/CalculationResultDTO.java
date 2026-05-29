@@ -14,6 +14,7 @@ public class CalculationResultDTO {
     private BigDecimal dailyRate;
     private int        totalDays;
     private int        extraHours;
+    private int        billedDays;
     private String     rentalType;
     private int        estimatedKm;
     private int        includedKmPerDay;

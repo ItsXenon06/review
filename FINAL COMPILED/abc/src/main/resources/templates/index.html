@@ -100,7 +100,7 @@
             <a href="/dashboard"     class="sidebar-link"><i class="bi bi-grid-1x2"></i> Tổng quan</a>
             <a href="/storage"       class="sidebar-link"><i class="bi bi-archive"></i> Lưu trữ</a>
             <a href="/search"        class="sidebar-link"><i class="bi bi-search"></i> Tra cứu</a>
-            <a href="/statistics"    class="sidebar-link"><i class="bi bi-bar-chart-line"></i> Thống kê</a>
+            <a href="/statistic"    class="sidebar-link"><i class="bi bi-bar-chart-line"></i> Thống kê</a>
             <a href="/calculation"   class="sidebar-link active"><i class="bi bi-calculator"></i> Tính toán</a>
             <a href="/contracts"     class="sidebar-link"><i class="bi bi-file-earmark-text"></i> Hợp đồng</a>
             <a href="/customers"     class="sidebar-link"><i class="bi bi-people"></i> Khách hàng</a>
@@ -130,7 +130,7 @@
             <div class="user-pill">
                 <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
                 <div>
-                    <div style="font-weight:600;font-size:13px;" th:text="${#authentication?.name ?: 'Admin'}">Admin</div>
+                    <div style="font-weight:600;font-size:13px;" th:text="${currentUsername ?: 'Admin'}">Admin</div>
                     <div style="font-size:11px;color:var(--text-muted);">Quản trị viên</div>
                 </div>
                 <i class="bi bi-chevron-down" style="font-size:11px;color:var(--text-muted);"></i>
@@ -287,9 +287,11 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td th:text="'1. Tiền thuê xe (' + ${calcResult.totalDays + (calcResult.extraHours > 0 ? 1 : 0)} + ' ngày tính tiền)'"></td>
+                                    <td th:text="'1. Tiền thuê xe (' + ${calcResult.billedDays} + ' ngày tính tiền)'"></td>
+<!-- CORRECT — use dailyRate: -->
 <td class="text-muted-c"
-    th:text="${(calcResult.totalDays + (calcResult.extraHours > 0 ? 1 : 0))+' ngày × '+#numbers.formatDecimal(calcResult.insuranceDailyRate,1,'COMMA',0,'POINT')+' đ'}"></td>
+    th:text="${calcResult.billedDays + ' ngày × ' + #numbers.formatDecimal(calcResult.dailyRate,1,'COMMA',0,'POINT') + ' đ'}">
+</td>
                                     <td style="text-align:right" th:text="${#numbers.formatDecimal(calcResult.baseRentalCharge,1,'COMMA',0,'POINT')}"></td>
                                 </tr>
                                 <tr>
@@ -600,8 +602,8 @@
                                         <label class="form-label">Tỷ lệ khấu hao/năm (%)</label>
                                         <div class="input-group">
                                             <input type="number" class="form-control" name="annualDepreciationRate"
-                                                   th:value="${depreciationRequest?.annualDepreciationRate != null
-                                                   ? depreciationRequest.annualDepreciationRate.multiply(new java.math.BigDecimal('100')).stripTrailingZeros().toPlainString()
+                                                th:value="${depreciationRequest?.annualDepreciationRate != null
+                                                   ? depreciationRequest.annualDepreciationRate.toPlainString()
                                                    : '20'}"
                                                    step="1" min="1" max="50"/>
                                             <span class="input-group-text">%</span>

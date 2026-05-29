@@ -7,7 +7,7 @@ import com.abc.backend.CNPM.repository.InsurancePlanRepository;
 import com.abc.backend.CNPM.repository.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.abc.backend.CNPM.dto.PenaltyResultDTO;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
@@ -96,6 +96,7 @@ public class CalculationService {
                 // --- THỜI GIAN THỰC TẾ (Hiện panel phải: "3 ngày 2 giờ") ---
                 .totalDays(actualDays)
                 .extraHours(extraHours)
+                .billedDays(billedDays)
 
                 // --- SỐ NGÀY TÍNH TIỀN THỰC TẾ (Thêm vào nếu DTO có, để truyền xuống UI hiển thị "4 ngày") ---
                 // .billedDays(billedDays)

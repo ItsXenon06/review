@@ -57,13 +57,24 @@
             <div id="tab-vai-tro" class="pq-layout">
                 <!-- ROLE LIST -->
                 <div class="role-panel">
-                    ...
-                </div>
+  <div th:each="vt : ${vaiTros}"
+       style="padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;"
+       th:onclick="|loadPermissions(${vt.id})|">
+    <div style="font-weight:600;" th:text="${vt.tenVaiTro}"></div>
+    <div style="font-size:12px;color:var(--text-muted);" th:text="${vt.moTa}"></div>
+  </div>
+</div>
 
                 <!-- PERMISSION PANEL -->
                 <div class="quyen-panel" id="quyen-panel">
-                    ...
-                </div>
+  <p class="text-muted" style="padding:20px;">Chọn vai trò để xem quyền.</p>
+</div>
+
+<!-- Replace the tab-nguoi-dung div content: -->
+<div id="tab-nguoi-dung" style="display:none;">
+  <p class="text-muted" style="padding:20px;">Chọn vai trò từ tab "Vai trò" để xem danh sách người dùng.</p>
+</div>
+
             </div>
 
             <!-- TAB NGƯỜI DÙNG -->
@@ -85,8 +96,50 @@
 
 <!-- SCRIPT (UNCHANGED) -->
 <script>
-    // your entire JS stays exactly the same
+function switchTab(id, el) {
+    document.getElementById('tab-vai-tro').style.display = id === 'vai-tro' ? '' : 'none';
+    document.getElementById('tab-nguoi-dung').style.display = id === 'nguoi-dung' ? '' : 'none';
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    if (el) el.classList.add('active');
+}
+
+function openModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'flex';
+}
+
+function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+}
+
+function loadPermissions(vaiTroId) {
+    fetch('/api/phan-quyen/vai-tro/' + vaiTroId)
+    .then(r => r.json())
+    .then(data => {
+        const panel = document.getElementById('quyen-panel');
+        if (!data.danhSachQuyen) { panel.innerHTML = '<p class="text-muted p-3">Không có quyền.</p>'; return; }
+        let html = '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+        html += '<thead><tr style="background:#f8fafc;"><th style="padding:10px;">Chức năng</th><th>Xem</th><th>Thêm</th><th>Sửa</th><th>Xóa</th><th>Xuất</th><th>Phân quyền</th></tr></thead><tbody>';
+        for (const [key, q] of Object.entries(data.danhSachQuyen)) {
+            const chk = val => val ? '✅' : '☐';
+            html += `<tr style="border-bottom:1px solid #f1f5f9;">
+                <td style="padding:9px 12px;font-weight:500;">${q.tenChucNang}</td>
+                <td style="text-align:center;">${chk(q.xem)}</td>
+                <td style="text-align:center;">${chk(q.them)}</td>
+                <td style="text-align:center;">${chk(q.sua)}</td>
+                <td style="text-align:center;">${chk(q.xoa)}</td>
+                <td style="text-align:center;">${chk(q.xuatDuLieu)}</td>
+                <td style="text-align:center;">${chk(q.phanQuyen)}</td>
+            </tr>`;
+        }
+        html += '</tbody></table>';
+        panel.innerHTML = html;
+    })
+    .catch(() => document.getElementById('quyen-panel').innerHTML = '<p class="text-danger p-3">Lỗi tải quyền.</p>');
+}
 </script>
+
 
 </body>
 </html>

@@ -403,7 +403,6 @@
               <label class="form-label fw-600">Bảo hiểm</label>
               <select name="insurancePlanId" class="form-select">
                 <option value="">Không có</option>
-<option value="">Không có</option>
 
 <option th:each="p : ${insurancePlans}"
         th:value="${p.planId}"
@@ -434,5 +433,174 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Edit Vehicle Modal -->
+<div class="modal fade" id="modalEditVehicle" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-700"><i class="bi bi-pencil me-2 text-primary"></i>Sửa xe</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="editVehicleForm" method="post">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-600">Biển số</label>
+              <input type="text" name="licensePlate" id="ev_licensePlate" class="form-control" required/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">VIN</label>
+              <input type="text" name="vin" id="ev_vin" class="form-control" required/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Hãng</label>
+              <input type="text" name="make" id="ev_make" class="form-control" required/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Mẫu xe</label>
+              <input type="text" name="model" id="ev_model" class="form-control" required/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Năm</label>
+              <input type="number" name="year" id="ev_year" class="form-control"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Danh mục</label>
+              <select name="categoryId" id="ev_categoryId" class="form-select">
+                <option th:each="cat : ${categories}" th:value="${cat.categoryId}" th:text="${cat.categoryName}"></option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Trạng thái</label>
+              <select name="status" id="ev_status" class="form-select">
+                <option th:each="s : ${vehicleStatuses}" th:value="${s.name()}" th:text="${s.name()}"></option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Km hiện tại</label>
+              <input type="number" name="currentMileage" id="ev_mileage" class="form-control"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Nhiên liệu</label>
+              <select name="fuelType" id="ev_fuelType" class="form-select">
+                <option th:each="f : ${fuelTypes}" th:value="${f.name()}" th:text="${f.name()}"></option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Hộp số</label>
+              <select name="transmissionType" id="ev_transmission" class="form-select">
+                <option th:each="t : ${transmissionTypes}" th:value="${t.name()}" th:text="${t.name()}"></option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Số chỗ</label>
+              <input type="number" name="seatingCapacity" id="ev_seats" class="form-control"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Màu</label>
+              <input type="text" name="color" id="ev_color" class="form-control"/>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-600">Ghi chú</label>
+              <textarea name="notes" id="ev_notes" class="form-control" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Customer Modal -->
+<div class="modal fade" id="modalEditCustomer" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-700"><i class="bi bi-pencil me-2 text-primary"></i>Sửa khách hàng</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="editCustomerForm" method="post">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-600">Họ</label>
+              <input type="text" name="firstName" id="ec_firstName" class="form-control" required/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Tên</label>
+              <input type="text" name="lastName" id="ec_lastName" class="form-control" required/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Email</label>
+              <input type="email" name="email" id="ec_email" class="form-control" required/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Số điện thoại</label>
+              <input type="text" name="phoneNumber" id="ec_phone" class="form-control"/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Số GPLX</label>
+              <input type="text" name="driverLicenseNo" id="ec_license" class="form-control" required/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Hạn GPLX</label>
+              <input type="date" name="licenseExpiry" id="ec_expiry" class="form-control" required/>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function openEditVehicle(id) {
+    fetch('/storage/vehicles/' + id + '/data')
+    .then(r => r.json())
+    .then(v => {
+        document.getElementById('editVehicleForm').action = '/storage/vehicles/' + id + '/update';
+        document.getElementById('ev_licensePlate').value = v.licensePlate || '';
+        document.getElementById('ev_vin').value = v.vin || '';
+        document.getElementById('ev_make').value = v.make || '';
+        document.getElementById('ev_model').value = v.model || '';
+        document.getElementById('ev_year').value = v.year || '';
+        document.getElementById('ev_mileage').value = v.currentMileage || 0;
+        document.getElementById('ev_seats').value = v.seatingCapacity || 5;
+        document.getElementById('ev_color').value = v.color || '';
+        document.getElementById('ev_notes').value = v.notes || '';
+        if (v.category) document.getElementById('ev_categoryId').value = v.category.categoryId;
+        if (v.status) document.getElementById('ev_status').value = v.status;
+        if (v.fuelType) document.getElementById('ev_fuelType').value = v.fuelType;
+        if (v.transmissionType) document.getElementById('ev_transmission').value = v.transmissionType;
+        new bootstrap.Modal(document.getElementById('modalEditVehicle')).show();
+    })
+    .catch(e => alert('Không thể tải dữ liệu xe: ' + e));
+}
+
+function openEditCustomer(id) {
+    fetch('/storage/customers/' + id + '/data')
+    .then(r => r.json())
+    .then(c => {
+        document.getElementById('editCustomerForm').action = '/storage/customers/' + id + '/update';
+        document.getElementById('ec_firstName').value = c.firstName || '';
+        document.getElementById('ec_lastName').value = c.lastName || '';
+        document.getElementById('ec_email').value = c.email || '';
+        document.getElementById('ec_phone').value = c.phoneNumber || '';
+        document.getElementById('ec_license').value = c.driverLicenseNo || '';
+        document.getElementById('ec_expiry').value = c.licenseExpiry || '';
+        new bootstrap.Modal(document.getElementById('modalEditCustomer')).show();
+    })
+    .catch(e => alert('Không thể tải dữ liệu khách hàng: ' + e));
+}
+</script>
+
 </body>
 </html>

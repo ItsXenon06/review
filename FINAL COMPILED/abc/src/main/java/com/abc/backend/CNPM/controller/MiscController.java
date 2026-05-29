@@ -35,4 +35,8 @@ public class MiscController {
     public String vehiclesPage() {
         return "redirect:/storage?tab=vehicle";
     }
+    @GetMapping("/")
+public String rootRedirect() {
+    return "redirect:/dashboard";
+}
 }

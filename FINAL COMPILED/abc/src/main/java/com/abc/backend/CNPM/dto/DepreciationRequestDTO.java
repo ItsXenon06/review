@@ -14,6 +14,7 @@ public class DepreciationRequestDTO {
     @NotNull(message = "Vui lòng nhập giá trị ban đầu")
     @Min(value = 1, message = "Giá trị phải lớn hơn 0")
     private BigDecimal originalValue;
+    @NotNull(message = "Vui lòng nhập tỷ lệ khấu hao")
     @DecimalMin(value = "1", message = "Tỷ lệ khấu hao tối thiểu 1%")
 @DecimalMax(value = "50", message = "Tỷ lệ khấu hao tối đa 50%")
 private BigDecimal annualDepreciationRate = new BigDecimal("20");

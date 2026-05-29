@@ -12,5 +12,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     long countByIsReadFalse();
 
-    List<Notification> findByContractIDOrderBySentAtDesc(Long contractId);
+    List<Notification> findByContractIDOrderBySentAtDesc(Integer contractId);
 }

@@ -13,11 +13,12 @@ public class ContractController {
     private ContractService contractService;
 
     // Chỉ giữ lại logic hiển thị View
-    @GetMapping("/contracts")
-    public String contractsPage(Model model) {
-        model.addAttribute("expiringContracts", contractService.findAllExpiring());
-        return "main-dashboard";
-    }
+@GetMapping("/contracts")
+public String contractsPage(Model model) {
+    model.addAttribute("expiringContracts", contractService.findAllExpiring());
+    return "contracts/index"; // ← change from "main-dashboard"
+}
+
     
     // ĐÃ XÓA phương thức @PostMapping trùng lặp ở đây
 }

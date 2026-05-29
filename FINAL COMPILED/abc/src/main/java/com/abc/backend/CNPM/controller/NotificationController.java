@@ -16,7 +16,7 @@ public class NotificationController {
 
     // URL sẽ là: POST /api/notifications/send/{id}
     @PostMapping("/send/{id}")
-    public ResponseEntity<String> sendNotification(@PathVariable Long id) {
+    public ResponseEntity<String> sendNotification(@PathVariable Integer id) {
         try {
             // Logic tạo và lưu thông báo
             Notification notification = new Notification();

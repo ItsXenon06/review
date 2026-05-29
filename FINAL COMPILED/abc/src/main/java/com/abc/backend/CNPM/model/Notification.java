@@ -15,7 +15,7 @@ public class Notification {
     private Long notificationID;
 
     @Column(name = "ContractID")
-    private Long contractID;
+    private Integer contractID;
 
     @Column(name = "Title", length = 200)
     private String title;
